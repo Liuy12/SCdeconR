@@ -94,7 +94,7 @@ cell attributes, such as cell type, rows represent cells. Each element in <code>
 
 
 <dt>data_type</dt>
-<dd><p>data type of the input scRNA-seq/snRNA-seq data. Could be either a single character value from "cellranger", "h5", "matrix", or 
+<dd><p>data type of the input scRNA-seq/snRNA-seq data. Could be either a single character value from "cellranger", "h5", "matrix", or
 a vector/list of values with the same length as ref_list indicating the data type for each element.</p></dd>
 
 
@@ -121,12 +121,12 @@ out MT percentage ("percent_mt") &amp; cell cycle effects ("phase")</p></dd>
 
 
 <dt>ex_features</dt>
-<dd><p>a vector of character values indicating genes to exclude from anchor features. Those genes will not be considered as 
+<dd><p>a vector of character values indicating genes to exclude from anchor features. Those genes will not be considered as
 anchor features for integration, but will still be present in the integrated data.</p></dd>
 
 
 <dt>cluster</dt>
-<dd><p>logical value indicating whether to perform clustering on the integrated data. If TRUE, unsupervised clustering will be performed, and 
+<dd><p>logical value indicating whether to perform clustering on the integrated data. If TRUE, unsupervised clustering will be performed, and
 the results will be saved in "seurat_clusters" metadata in the output Seurat object.</p></dd>
 
 
@@ -160,7 +160,7 @@ the results will be saved in "seurat_clusters" metadata in the output Seurat obj
 <dd><p>path to a matrix-like file, with rows representing genes, columns representing cells.</p></dd>
 
 
-</dl><p>SCTransform with <code>vst.flavor = "v2"</code> is used for normalization of individual data. Integration methods can be chosen from either "harmony" 
+</dl><p>SCTransform with <code>vst.flavor = "v2"</code> is used for normalization of individual data. Integration methods can be chosen from either "harmony"
 or "seurat". Harmony typically is more memory efficient and, recommended if you have large # of cells for integration.</p>
     </div>
 
@@ -174,16 +174,16 @@ or "seurat". Harmony typically is more memory efficient and, recommended if you 
 <span class="r-in"><span>                    <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"SCdeconR"</span><span class="op">)</span>, <span class="st">"/refdata/phenodata_sample2.txt"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## Register backend for parallel processing</span></span></span>
-<span class="r-in"><span><span class="fu">registerDoFuture</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">plan</span><span class="op">(</span><span class="st">"multisession"</span>, workers <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://doFuture.futureverse.org/reference/registerDoFuture.html" class="external-link">registerDoFuture</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="st">"multisession"</span>, workers <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## construct integrated reference data</span></span></span>
-<span class="r-in"><span><span class="va">refdata</span> <span class="op">&lt;-</span> <span class="fu">construct_ref</span><span class="op">(</span>ref_list <span class="op">=</span> <span class="va">ref_list</span>, </span></span>
-<span class="r-in"><span>                         phenodata_list <span class="op">=</span> <span class="va">phenodata_list</span>, </span></span>
-<span class="r-in"><span>                         data_type <span class="op">=</span> <span class="st">"cellranger"</span>, </span></span>
-<span class="r-in"><span>                         method <span class="op">=</span> <span class="st">"harmony"</span>, </span></span>
-<span class="r-in"><span>                         group_var <span class="op">=</span> <span class="st">"subjectid"</span>, </span></span>
-<span class="r-in"><span>                         nfeature_rna <span class="op">=</span> <span class="fl">50</span>, </span></span>
+<span class="r-in"><span><span class="va">refdata</span> <span class="op">&lt;-</span> <span class="fu">construct_ref</span><span class="op">(</span>ref_list <span class="op">=</span> <span class="va">ref_list</span>,</span></span>
+<span class="r-in"><span>                         phenodata_list <span class="op">=</span> <span class="va">phenodata_list</span>,</span></span>
+<span class="r-in"><span>                         data_type <span class="op">=</span> <span class="st">"cellranger"</span>,</span></span>
+<span class="r-in"><span>                         method <span class="op">=</span> <span class="st">"harmony"</span>,</span></span>
+<span class="r-in"><span>                         group_var <span class="op">=</span> <span class="st">"subjectid"</span>,</span></span>
+<span class="r-in"><span>                         nfeature_rna <span class="op">=</span> <span class="fl">50</span>,</span></span>
 <span class="r-in"><span>                         vars_to_regress <span class="op">=</span> <span class="st">"percent_mt"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
