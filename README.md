@@ -1,5 +1,7 @@
 # SCdeconR
 
+<img src="man/figures/SCdeconR.png" alt="" align="middle" width="100%" height="100%">
+
 SCdeconR aims to provide a streamlined workflow from deconvolution of bulk RNA-seq data to downstream differential and gene-set enrichment analysis. SCdeconR provides a simulation framework to generate artificial bulk samples for benchmarking purposes. It also provides various visualization options to compare the influence of adjusting for cell-proportions differences on differential expression and pathway analyses. 
 
 ## Installation
