@@ -33,13 +33,9 @@ You can also skip this section, and directly load the integrated reference data 
 
 ```{r}
 library(SCdeconR)
-library(doFuture)
-library(Seurat)
-library(edgeR)
-library(dplyr)
-library(ggplot2)
 library(plotly)
 # register backend for parallel processing
+library(doFuture)
 registerDoFuture()
 plan("multisession", workers = 4)
 
