@@ -52,12 +52,12 @@ ref_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sam
 phenodata_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/phenodata_sample1.txt"),
                     paste0(system.file("extdata", package = "SCdeconR"), "/refdata/phenodata_sample2.txt"))
 tmp <- load_scdata(
-  ref = ref_list[[1]], 
-  data_type = c("cellranger"), 
-  meta_info = fread(file = phenodata_list[[1]], check.names = FALSE, header = TRUE), 
-  nfeature_rna = 50, 
-  vars_to_regress = c("percent_mt"), 
-  id = 1, 
+  ref = ref_list[[1]],
+  data_type = c("cellranger"),
+  meta_info = fread(file = phenodata_list[[1]], check.names = FALSE, header = TRUE),
+  nfeature_rna = 50,
+  vars_to_regress = c("percent_mt"),
+  id = 1,
   verbose = TRUE)
 }
 }

@@ -30,7 +30,7 @@ cell attributes, such as cell type, rows represent cells. Each element in \code{
  \item cell types
 }}
 
-\item{data_type}{data type of the input scRNA-seq/snRNA-seq data. Could be either a single character value from "cellranger", "h5", "matrix", or 
+\item{data_type}{data type of the input scRNA-seq/snRNA-seq data. Could be either a single character value from "cellranger", "h5", "matrix", or
 a vector/list of values with the same length as ref_list indicating the data type for each element.}
 
 \item{method}{character value specifying the method to use. Has to be one of "harmony" or "seurat". See details for more information.}
@@ -45,10 +45,10 @@ is set to "harmony".}
 \item{vars_to_regress}{a list of character values indicating the variables to regress for SCTransform normalization step. Default is to regress
 out MT percentage ("percent_mt") & cell cycle effects ("phase")}
 
-\item{ex_features}{a vector of character values indicating genes to exclude from anchor features. Those genes will not be considered as 
+\item{ex_features}{a vector of character values indicating genes to exclude from anchor features. Those genes will not be considered as
 anchor features for integration, but will still be present in the integrated data.}
 
-\item{cluster}{logical value indicating whether to perform clustering on the integrated data. If TRUE, unsupervised clustering will be performed, and 
+\item{cluster}{logical value indicating whether to perform clustering on the integrated data. If TRUE, unsupervised clustering will be performed, and
 the results will be saved in "seurat_clusters" metadata in the output Seurat object.}
 
 \item{resolution}{numeric value specifying resolution to use when cluster is set to TRUE.}
@@ -71,7 +71,7 @@ data_type can be chosen from:
  \item{matrix}{path to a matrix-like file, with rows representing genes, columns representing cells.}
 }
 
-SCTransform with \code{vst.flavor = "v2"} is used for normalization of individual data. Integration methods can be chosen from either "harmony" 
+SCTransform with \code{vst.flavor = "v2"} is used for normalization of individual data. Integration methods can be chosen from either "harmony"
 or "seurat". Harmony typically is more memory efficient and, recommended if you have large # of cells for integration.
 }
 \examples{
@@ -87,12 +87,12 @@ registerDoFuture()
 plan("multisession", workers = 4)
 
 ## construct integrated reference data
-refdata <- construct_ref(ref_list = ref_list, 
-                         phenodata_list = phenodata_list, 
-                         data_type = "cellranger", 
-                         method = "harmony", 
-                         group_var = "subjectid", 
-                         nfeature_rna = 50, 
+refdata <- construct_ref(ref_list = ref_list,
+                         phenodata_list = phenodata_list,
+                         data_type = "cellranger",
+                         method = "harmony",
+                         group_var = "subjectid",
+                         nfeature_rna = 50,
                          vars_to_regress = "percent_mt")
 }
 }

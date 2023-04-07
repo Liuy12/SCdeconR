@@ -141,9 +141,9 @@ data(refdata)
 phenodata <- data.frame(cellid = colnames(refdata),
                         celltypes = refdata$celltype,
                         subjectid = refdata$subjectid)
-bulk_sim <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"), 
-                           phenodata = phenodata, 
-                           num_mixtures = 20, 
+bulk_sim <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+                           phenodata = phenodata,
+                           num_mixtures = 20,
                            num_mixtures_sprop = 1)
 
 ## perform deconvolution based on "OLS" algorithm
