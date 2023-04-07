@@ -23,7 +23,8 @@ scdecon(
   cibersortpath = NULL,
   pythonpath = NULL,
   tmpdir = NULL,
-  seed = 1234
+  seed = 1234,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -77,6 +78,8 @@ experiments in evaluating the effect of cell type removal from reference.}
 \item{tmpdir}{temporary processing directory for scaden.}
 
 \item{seed}{random seed used for simulating FFPE artifacts. Only applicable when ffpe_artifacts is set to TRUE.}
+
+\item{verbose}{a logical value indicating whether to print messages. Default to FALSE.}
 }
 \value{
 a list containing two or three elements.

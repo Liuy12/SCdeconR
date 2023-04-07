@@ -59,16 +59,16 @@ phenodata <- data.frame(cellid = colnames(refdata),
 prop1 <- data.frame(celltypes = unique(refdata$celltype),
                    proportion = rep(0.125, 8))
 ## simulate 20 bulk samples based on specified cell type proportion
-bulk_sim1 <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"), 
-                            phenodata = phenodata, 
-                            num_mixtures = 20, 
+bulk_sim1 <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+                            phenodata = phenodata,
+                            num_mixtures = 20,
                             prop = prop1, replace = TRUE)
 ## generate another vector with high proportion for a certian cell type
 prop2 <- data.frame(celltypes = unique(refdata$celltype),
                     proportion = c(0.8, 0.1, 0.1, rep(0, 5)))
 bulk_sim2 <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
                             phenodata = phenodata,
-                            num_mixtures = 20, 
+                            num_mixtures = 20,
                             prop = prop2, replace = TRUE)
 ## compare data for differential analysis
 bulk_sim <- list(cbind(bulk_sim1[[1]], bulk_sim2[[1]]),
