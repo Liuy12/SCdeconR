@@ -1,8 +1,8 @@
 
 #' Integration of single-cell/nuclei RNA-seq data as reference
-#' 
+#'
 #' Integration of scRNA-seq or snRNA-seq data using either harmony or seurat.
-#' 
+#'
 #' @param ref_list a character vector of data paths to scRNA-seq/snRNA-seq. See \code{data_type} for accepted data types.
 #' @param phenodata_list a character vector of data paths to metadata for elements in ref_list. All metadata within phenodata_list should have consistent column names. Columns represent
 #' cell attributes, such as cell type, rows represent cells. Each element in \code{phenodata_list} should at least contain the first two columns as:
@@ -10,7 +10,7 @@
 #'  \item cell barcodes
 #'  \item cell types
 #' }
-#' @param data_type data type of the input scRNA-seq/snRNA-seq data. Could be either a single character value from "cellranger", "h5", "matrix", or 
+#' @param data_type data type of the input scRNA-seq/snRNA-seq data. Could be either a single character value from "cellranger", "h5", "matrix", or
 #' a vector/list of values with the same length as ref_list indicating the data type for each element.
 #' @param method character value specifying the method to use. Has to be one of "harmony" or "seurat". See details for more information.
 #' @param group_var a vector of character values indicating which variables within phenodata_list metadata to use for integration. Only applicable when method
@@ -19,48 +19,48 @@
 #' @param percent_mt maximum percentage of mitochondria (MT) mapped UMIs. Cells with MT percentage higher than percent_mt will be removed. Default to 40.
 #' @param vars_to_regress a list of character values indicating the variables to regress for SCTransform normalization step. Default is to regress
 #' out MT percentage ("percent_mt") & cell cycle effects ("phase")
-#' @param ex_features a vector of character values indicating genes to exclude from anchor features. Those genes will not be considered as 
+#' @param ex_features a vector of character values indicating genes to exclude from anchor features. Those genes will not be considered as
 #' anchor features for integration, but will still be present in the integrated data.
-#' @param cluster logical value indicating whether to perform clustering on the integrated data. If TRUE, unsupervised clustering will be performed, and 
-#' the results will be saved in "seurat_clusters" metadata in the output Seurat object. 
-#' @param resolution numeric value specifying resolution to use when cluster is set to TRUE. 
-#' @param verbose logical value indicating whether to print messages. 
+#' @param cluster logical value indicating whether to perform clustering on the integrated data. If TRUE, unsupervised clustering will be performed, and
+#' the results will be saved in "seurat_clusters" metadata in the output Seurat object.
+#' @param resolution numeric value specifying resolution to use when cluster is set to TRUE.
+#' @param verbose logical value indicating whether to print messages.
 #' @param ... additional parameters passed to \code{\link[Seurat]{SCTransfrom}}.
-#' 
+#'
 #' @return a \code{\link[Seurat]{Seurat-class}} object.
-#' 
-#' @details 
+#'
+#' @details
 #' data_type can be chosen from:
 #' \describe{
 #'  \item{cellranger}{path to a directory containing the matrix.mtx, genes.tsv (or features.tsv), and barcodes.tsv files outputted by 10x's cell-ranger}
 #'  \item{h5}{path to .h5 file outputted by 10x's cell-ranger}
 #'  \item{matrix}{path to a matrix-like file, with rows representing genes, columns representing cells.}
 #' }
-#' 
-#' SCTransform with \code{vst.flavor = "v2"} is used for normalization of individual data. Integration methods can be chosen from either "harmony" 
-#' or "seurat". Harmony typically is more memory efficient and, recommended if you have large # of cells for integration. 
-#' 
-#' @export 
-#' 
-#' @examples 
+#'
+#' SCTransform with \code{vst.flavor = "v2"} is used for normalization of individual data. Integration methods can be chosen from either "harmony"
+#' or "seurat". Harmony typically is more memory efficient and, recommended if you have large # of cells for integration.
+#'
+#' @export
+#'
+#' @examples
 #' \dontrun{
 #' ## random subset of two scRNA-seq datasets for breast tissue
 #' ref_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample1"),
 #'               paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample2"))
 #' phenodata_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/phenodata_sample1.txt"),
 #'                     paste0(system.file("extdata", package = "SCdeconR"), "/refdata/phenodata_sample2.txt"))
-#' 
+#'
 #' ## Register backend for parallel processing
 #' registerDoFuture()
 #' plan("multisession", workers = 4)
-#' 
+#'
 #' ## construct integrated reference data
-#' refdata <- construct_ref(ref_list = ref_list, 
-#'                          phenodata_list = phenodata_list, 
-#'                          data_type = "cellranger", 
-#'                          method = "harmony", 
-#'                          group_var = "subjectid", 
-#'                          nfeature_rna = 50, 
+#' refdata <- construct_ref(ref_list = ref_list,
+#'                          phenodata_list = phenodata_list,
+#'                          data_type = "cellranger",
+#'                          method = "harmony",
+#'                          group_var = "subjectid",
+#'                          nfeature_rna = 50,
 #'                          vars_to_regress = "percent_mt")
 #' }
 
@@ -133,9 +133,9 @@ construct_ref <- function(
   if (cluster) {
     reduction <- ifelse(method == "harmony", "harmony", "pca")
     merge_data <- RunPCA(merge_data, npcs = 30, verbose = verbose, features = VariableFeatures(merge_data))
-    merge_data <- RunTSNE(merge_data, reduction = reduction, dims = 1:30)
-    merge_data <- RunUMAP(merge_data, reduction = reduction, dims = 1:30)
-    merge_data <- FindNeighbors(merge_data, reduction = reduction, dims = 1:30)
+    merge_data <- RunTSNE(merge_data, reduction = reduction, dims = 1:30, verbose = verbose)
+    merge_data <- RunUMAP(merge_data, reduction = reduction, dims = 1:30, verbose = verbose)
+    merge_data <- FindNeighbors(merge_data, reduction = reduction, dims = 1:30, verbose = verbose)
     merge_data <- FindClusters(merge_data, resolution = resolution, verbose = verbose)
   }
   if (verbose) message("normalizing median UMI counts across SCT models")
@@ -144,40 +144,40 @@ construct_ref <- function(
 }
 
 #' Load, filter and normalize scRNA-seq/snRNA-seq data
-#' 
+#'
 #' Load and preprocess scRNA-seq/snRNA-seq data using seurat SCTransform workflow.
-#' 
+#'
 #' @param ref path to scRNA-seq/snRNA-seq data.
 #' @param data_type a character value specifying data type of the input scRNA-seq/snRNA-seq data, should be one of "cellranger", "h5", "matrix".
-#' @param meta_info a data.frame with rows representing cells, columns representing cell attributes. 
+#' @param meta_info a data.frame with rows representing cells, columns representing cell attributes.
 #' @param nfeature_rna minimum # of features with non-zero UMIs. Cells with # of features lower than nfeature_rna will be removed. Default to 200.
 #' @param percent_mt maximum percentage of mitochondria (MT) mapped UMIs. Cells with MT percentage higher than percent_mt will be removed. Default to 40.
 #' @param vars_to_regress a list of character values indicating the variables to regress for SCTransform normalization step. Default is to regress
 #' out MT percentage ("percent_mt") & cell cycle effects ("phase")
 #' @param id a character value specifying project or sample id. Only used for printing purposes.
-#' @param verbose logical value indicating whether to print messages. 
-#' @param ... additional parameters passed to \code{\link[Seurat]{SCTransfrom}}. 
-#' 
+#' @param verbose logical value indicating whether to print messages.
+#' @param ... additional parameters passed to \code{\link[Seurat]{SCTransfrom}}.
+#'
 #' @return a \code{\link[Seurat]{Seurat-class}} object.
-#' 
-#' @details 
+#'
+#' @details
 #' For more details, refer to \code{\link{construct_ref}}
-#' 
-#' @export 
-#' 
-#' @examples 
+#'
+#' @export
+#'
+#' @examples
 #' \dontrun{
 #' ref_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample1"),
 #'               paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample2"))
 #' phenodata_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/phenodata_sample1.txt"),
 #'                     paste0(system.file("extdata", package = "SCdeconR"), "/refdata/phenodata_sample2.txt"))
 #' tmp <- load_scdata(
-#'   ref = ref_list[[1]], 
-#'   data_type = c("cellranger"), 
-#'   meta_info = fread(file = phenodata_list[[1]], check.names = FALSE, header = TRUE), 
-#'   nfeature_rna = 50, 
-#'   vars_to_regress = c("percent_mt"), 
-#'   id = 1, 
+#'   ref = ref_list[[1]],
+#'   data_type = c("cellranger"),
+#'   meta_info = fread(file = phenodata_list[[1]], check.names = FALSE, header = TRUE),
+#'   nfeature_rna = 50,
+#'   vars_to_regress = c("percent_mt"),
+#'   id = 1,
 #'   verbose = TRUE)
 #' }
 
