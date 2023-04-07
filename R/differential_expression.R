@@ -274,7 +274,7 @@ deseq2_fun <- function(counts, prop, sampleinfo, control, case, padj_method, ...
     res <- as.data.frame(res)
     teststats <- res %>%
         select(-c(lfcSE, stat, padj)) %>%
-        rename(log2foldchange = log2FoldChange, pval = pvalue) %>%
+        dplyr::rename(log2foldchange = log2FoldChange, pval = pvalue) %>%
         mutate(log2avgexp = log2(baseMean + 0.1), .after = log2foldchange) %>%
         mutate(padj = p.adjust(pval, method = padj_method)) %>%
         mutate(genename = rownames(res), .before = log2foldchange) %>%
@@ -311,7 +311,7 @@ edger_fun <- function(counts, prop, sampleinfo, control, case, padj_method, ...)
     normdata <- cpm(cds)
     teststats <- lrt$table %>%
         select(-F) %>%
-        rename(logavgexp = logCPM, pval = PValue) %>%
+        dplyr::rename(logavgexp = logCPM, pval = PValue) %>%
         rename_with(~ gsub("logFC", "log2foldchange", .x)) %>%
         mutate(padj = p.adjust(pval, method = padj_method)) %>%
         mutate(genename = rownames(lrt$table), .before = log2foldchange)
@@ -350,7 +350,7 @@ limma_voom_fun <- function(counts, prop, sampleinfo, control, case, padj_method,
     }
     teststats <- lmres %>%
         select(-c(F, adj.P.Val)) %>%
-        rename(pval = P.Value, log2avgexp = AveExpr) %>%
+        dplyr::rename(pval = P.Value, log2avgexp = AveExpr) %>%
         rename_with(~ gsub("^", "log2foldchange.", .x), .cols = 1:all_of(ncoef)) %>%
         mutate(padj = p.adjust(pval, method = padj_method)) %>%
         mutate(genename = rownames(lmres), .before = log2foldchange)
@@ -385,7 +385,7 @@ limma.pfun <- function(counts, prop, sampleinfo, control, case, p_adj_method, ..
     }
     teststats <- lmres %>%
         select(-c(F, adj.P.Val)) %>%
-        rename(pval = P.Value, log2avgexp = AveExpr) %>%
+        dplyr::rename(pval = P.Value, log2avgexp = AveExpr) %>%
         rename_with(~ gsub("^", "log2foldchange.", .x), .cols = 1:all_of(ncoef)) %>%
         mutate(padj = p.adjust(pval, method = padj_method)) %>%
         mutate(genename = rownames(lmres), .before = log2foldchange)
