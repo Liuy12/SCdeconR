@@ -12,7 +12,7 @@
 #' @param de_method a character value indicating the method to use for testing differential expression. Should be one of "edgeR", "DESeq2", "limma_voom", "limma"
 #' @param padj_method method for adjusting multiple hypothesis testing. Default to "BH". See \code{\link{p.adjust}} for more details.
 #' @param ... parameters pass to DE methods.
-#' 
+#'
 #' @return a list of two elements:
 #' \enumerate{
 #'  \item a data.frame containing normalized gene expression data.
@@ -36,16 +36,16 @@
 #' prop1 <- data.frame(celltypes = unique(refdata$celltype),
 #'                    proportion = rep(0.125, 8))
 #' ## simulate 20 bulk samples based on specified cell type proportion
-#' bulk_sim1 <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"), 
-#'                             phenodata = phenodata, 
-#'                             num_mixtures = 20, 
+#' bulk_sim1 <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+#'                             phenodata = phenodata,
+#'                             num_mixtures = 20,
 #'                             prop = prop1, replace = TRUE)
 #' ## generate another vector with high proportion for a certian cell type
 #' prop2 <- data.frame(celltypes = unique(refdata$celltype),
 #'                     proportion = c(0.8, 0.1, 0.1, rep(0, 5)))
 #' bulk_sim2 <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
 #'                             phenodata = phenodata,
-#'                             num_mixtures = 20, 
+#'                             num_mixtures = 20,
 #'                             prop = prop2, replace = TRUE)
 #' ## compare data for differential analysis
 #' bulk_sim <- list(cbind(bulk_sim1[[1]], bulk_sim2[[1]]),
@@ -72,7 +72,7 @@
 #'                control = "group1",
 #'                case = "group2",
 #'                de_method = "edgeR")
-#' 
+#'
 #'  ## run differential analysis without adjusting for cell proportion differences
 #'  deres_notadjust <- run_de(bulk = bulk,
 #'                            prop = NULL,
@@ -80,7 +80,7 @@
 #'                            control = "group1",
 #'                            case = "group2",
 #'                            de_method = "edgeR")
-#' 
+#'
 #' ## scatter plot to compare the effect of adjusting cell proportion differences
 #' comparedeg_scatter(results1 = deres[[2]],
 #'                    results2 = deres_notadjust[[2]],
@@ -97,7 +97,7 @@
 #'                                      prop = decon_res[[1]],
 #'                                      UMI_min = 0,
 #'                                      CELL_MIN_INSTANCE = 1)
-#' 
+#'
 #'
 #' }
 
@@ -153,10 +153,10 @@ run_de <- function(
 #' @param pvalflag a logical value indicating whether to use adjusted p value in selecting differential expressed genes.
 #' @param interactive a logical value indicating whether to generate an interactive plot.
 #'
-#' @details See examples from \code{\link{run_de}}. 
+#' @details See examples from \code{\link{run_de}}.
 #' @export
 #'
-#' 
+#'
 
 comparedeg_scatter <- function(
     results1,
@@ -222,7 +222,7 @@ comparedeg_scatter <- function(
 #'
 #' @return a list with length equal to number of unique cell types in phenodata. Each element in the list represents gene expression matrix for each unique cell type.
 #'
-#' @details this function is inspired by cell-type specific gene expression estimation for doublet mode in \code{spacexr}. See examples from \code{\link{run_de}}. 
+#' @details this function is inspired by cell-type specific gene expression estimation for doublet mode in \code{spacexr}. See examples from \code{\link{run_de}}.
 #'
 #' @export
 #'
@@ -343,7 +343,7 @@ limma_voom_fun <- function(counts, prop, sampleinfo, control, case, padj_method,
         design <- model.matrix(formula_de, data = sampleinfo)
         colnames(design)[1:length(unique(sampleinfo$group))] <- gsub("^group", "", colnames(design)[1:length(unique(sampleinfo$group))])
         fit <- lmFit(y, design, ...)
-        fit2 <- contrasts.fit(fit, contrasts = makeContrasts(paste0(case, "-", control), levels = design))
+        fit2 <- eval(parse(text = paste0("contrasts.fit(fit, contrasts = makeContrasts(", case,"-",control,",levels=design))")))
         fit2 <- eBayes(fit2)
         lmres <- topTable(fit2, coef = 1, n = nrow(counts), sort.by = "none")
         ncoef <- 1
@@ -378,7 +378,7 @@ limma.pfun <- function(counts, prop, sampleinfo, control, case, p_adj_method, ..
         design <- model.matrix(formula_de, data = sampleinfo)
         colnames(design)[1:length(unique(sampleinfo$group))] <- gsub("^group", "", colnames(design)[1:length(unique(sampleinfo$group))])
         fit <- lmFit(normdata_log2, design, ...)
-        fit2 <- contrasts.fit(fit, contrasts = makeContrasts(paste0(case, "-", control), levels = design))
+        fit2 <- eval(parse(text = paste0("contrasts.fit(fit, contrasts = makeContrasts(", case,"-",control,",levels=design))")))
         fit2 <- eBayes(fit2)
         lmres <- topTable(fit2, coef = 1, n = nrow(counts), sort.by = "none")
         ncoef <- 1
