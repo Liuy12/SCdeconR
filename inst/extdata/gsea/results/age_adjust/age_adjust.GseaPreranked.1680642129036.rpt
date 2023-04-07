@@ -1,0 +1,23 @@
+producer_class	xtools.gsea.GseaPreranked
+producer_timestamp	1680642129036
+param	rpt_label	age_adjust
+param	rnd_seed	timestamp
+param	set_min	15
+param	zip_report	false
+param	create_svgs	false
+param	scoring_scheme	weighted
+param	rnk	/research/bsi/projects/staff_analysis/m182980/gitrepo/SCdeconR/inst/extdata/gsea/rnkfiles/deres.rnk
+param	norm	meandiv
+param	out	/research/bsi/projects/staff_analysis/m182980/gitrepo/SCdeconR/inst/extdata/gsea/results/age_adjust
+param	mode	Max_probe
+param	include_only_symbols	true
+param	help	false
+param	set_max	500
+param	gmx	/research/bsi/projects/staff_analysis/m182980/gitrepo/SCdeconR/inst/extdata/gsea/gmtfile/kegg.gmt
+param	make_sets	true
+param	plot_top_x	2
+param	gui	false
+param	nperm	1000
+param	collapse	No_Collapse
+
+file	/research/bsi/projects/staff_analysis/m182980/gitrepo/SCdeconR/inst/extdata/gsea/results/age_adjust/age_adjust.GseaPreranked.1680642129036/index.html

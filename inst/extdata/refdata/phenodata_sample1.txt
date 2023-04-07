@@ -1,0 +1,141 @@
+cellid	celltype	subjectid	cohort
+TAAGAGACACATGACT-1_1	Epithelial cells	subject1	komentissuebank
+GACGTGCCAAGTAGTA-1_1	Epithelial cells	subject1	komentissuebank
+TCGAGGCCACTTGGAT-1_1	Epithelial cells	subject1	komentissuebank
+TTCTCAATCTTGGGTA-1_1	Epithelial cells	subject1	komentissuebank
+CTACGTCCAACCGCCA-1_1	Epithelial cells	subject1	komentissuebank
+GACGTGCTCCACGAAT-1_1	Epithelial cells	subject1	komentissuebank
+TTAGTTCTCGTCGTTC-1_1	Epithelial cells	subject1	komentissuebank
+ATGCGATTCAATCTCT-1_1	Epithelial cells	subject1	komentissuebank
+GCTCTGTTCTCCTATA-1_1	Epithelial cells	subject1	komentissuebank
+TGTGTTTGTGGTTTCA-1_1	Epithelial cells	subject1	komentissuebank
+TCAGCTCGTTACGACT-1_1	Epithelial cells	subject1	komentissuebank
+CTCTGGTCATTCCTGC-1_1	Epithelial cells	subject1	komentissuebank
+TTGGCAATCACGGTTA-1_1	Epithelial cells	subject1	komentissuebank
+GTAGGCCAGCCATCGC-1_1	Epithelial cells	subject1	komentissuebank
+GAGTCCGTCGAATGCT-1_1	Epithelial cells	subject1	komentissuebank
+CTAGCCTTCATGTCTT-1_1	Epithelial cells	subject1	komentissuebank
+CATCGAAGTCCAAGTT-1_1	Epithelial cells	subject1	komentissuebank
+CACCAGGGTACAGTGG-1_1	Epithelial cells	subject1	komentissuebank
+CGATTGACACTACAGT-1_1	Epithelial cells	subject1	komentissuebank
+ATTGGTGCACAGGCCT-1_1	Epithelial cells	subject1	komentissuebank
+TGCCCATAGGGAGTAA-1_1	Monocytes	subject1	komentissuebank
+TTTCCTCCAATGACCT-1_1	Monocytes	subject1	komentissuebank
+ACTTGTTCAGTCGTGC-1_1	Monocytes	subject1	komentissuebank
+CGACTTCGTCAGAAGC-1_1	Monocytes	subject1	komentissuebank
+AGGCCGTCATCTCGCT-1_1	Monocytes	subject1	komentissuebank
+GATGAAATCTGAAAGA-1_1	Monocytes	subject1	komentissuebank
+TTGCGTCCAGCGTAAG-1_1	Monocytes	subject1	komentissuebank
+CACAGTACATCTCCCA-1_1	Monocytes	subject1	komentissuebank
+GATCGTAGTGAGGCTA-1_1	Monocytes	subject1	komentissuebank
+AAACCTGAGGCGTACA-1_1	Monocytes	subject1	komentissuebank
+GTACTTTCACCAGGTC-1_1	Monocytes	subject1	komentissuebank
+TACACGACACTAGTAC-1_1	Monocytes	subject1	komentissuebank
+CACAAACTCCTCGCAT-1_1	Monocytes	subject1	komentissuebank
+TGGTTCCCACGTAAGG-1_1	Monocytes	subject1	komentissuebank
+CAAGGCCAGCTGCCCA-1_1	Monocytes	subject1	komentissuebank
+CTCTAATTCTCAAACG-1_1	Monocytes	subject1	komentissuebank
+CACTCCAAGTTCGCGC-1_1	Monocytes	subject1	komentissuebank
+TACAGTGTCAAAGTAG-1_1	Monocytes	subject1	komentissuebank
+GGATTACAGGTACTCT-1_1	Monocytes	subject1	komentissuebank
+TAGTGGTCATAAGACA-1_1	Monocytes	subject1	komentissuebank
+CTACCCATCATTTGGG-1_1	Fibroblast	subject1	komentissuebank
+ACCCACTTCCGAGCCA-1_1	Fibroblast	subject1	komentissuebank
+GAGGTGATCCGCAGTG-1_1	Fibroblast	subject1	komentissuebank
+GTAACGTTCACAGGCC-1_1	Fibroblast	subject1	komentissuebank
+TGGCCAGGTGCCTGTG-1_1	Fibroblast	subject1	komentissuebank
+GCCTCTACATTCACTT-1_1	Fibroblast	subject1	komentissuebank
+GGCCGATTCCAATGGT-1_1	Fibroblast	subject1	komentissuebank
+TGACTTTTCAAGGCTT-1_1	Fibroblast	subject1	komentissuebank
+CAGGTGCCACGTCTCT-1_1	Fibroblast	subject1	komentissuebank
+TCGTAGATCGGCGCTA-1_1	Fibroblast	subject1	komentissuebank
+AGGGAGTTCGGAAACG-1_1	Fibroblast	subject1	komentissuebank
+TGAGCATGTGCAACGA-1_1	Fibroblast	subject1	komentissuebank
+CAAGATCCAAGGACTG-1_1	Fibroblast	subject1	komentissuebank
+CAGCGACGTCTGCGGT-1_1	Fibroblast	subject1	komentissuebank
+GTAACGTGTGTGGCTC-1_1	Fibroblast	subject1	komentissuebank
+CATCAAGAGTGCAAGC-1_1	Fibroblast	subject1	komentissuebank
+TACCTTACACGAGAGT-1_1	Fibroblast	subject1	komentissuebank
+CTGATCCAGTTACCCA-1_1	Fibroblast	subject1	komentissuebank
+TAGTGGTGTTACCAGT-1_1	Fibroblast	subject1	komentissuebank
+ACCTTTATCTGGTTCC-1_1	Fibroblast	subject1	komentissuebank
+GTCTTCGTCGCCGTGA-1_1	T cell	subject1	komentissuebank
+CTGATCCGTTACAGAA-1_1	T cell	subject1	komentissuebank
+TGCCCTAAGGCTAGAC-1_1	T cell	subject1	komentissuebank
+AATCGGTTCGAGCCCA-1_1	T cell	subject1	komentissuebank
+CGCGGTAAGAGTGACC-1_1	T cell	subject1	komentissuebank
+TCGCGAGCATTACCTT-1_1	T cell	subject1	komentissuebank
+AGATTGCTCATACGGT-1_1	T cell	subject1	komentissuebank
+CGCTATCCAGGCGATA-1_1	T cell	subject1	komentissuebank
+TCTTCGGCACCACGTG-1_1	T cell	subject1	komentissuebank
+GGATGTTGTGCATCTA-1_1	T cell	subject1	komentissuebank
+TCAACGAAGCCATCGC-1_1	T cell	subject1	komentissuebank
+CGTTCTGCAATGGAGC-1_1	T cell	subject1	komentissuebank
+TCATTTGAGTGCTGCC-1_1	T cell	subject1	komentissuebank
+GACGCGTAGGCAATTA-1_1	T cell	subject1	komentissuebank
+TGGTTCCTCACAGGCC-1_1	T cell	subject1	komentissuebank
+GCGCAGTTCAAGGCTT-1_1	T cell	subject1	komentissuebank
+TACCTTATCTTAGAGC-1_1	T cell	subject1	komentissuebank
+GTACGTACATCTGGTA-1_1	T cell	subject1	komentissuebank
+AGGTCCGTCGTGACAT-1_1	T cell	subject1	komentissuebank
+CTCGTACAGTTAAGTG-1_1	T cell	subject1	komentissuebank
+TGCTACCTCGCCCTTA-1_1	NK cells	subject1	komentissuebank
+GTTTCTAAGCCCAATT-1_1	NK cells	subject1	komentissuebank
+TACCTTAGTCAGAAGC-1_1	NK cells	subject1	komentissuebank
+TGGTTCCTCACTCCTG-1_1	NK cells	subject1	komentissuebank
+TTAACTCCATGGTCAT-1_1	NK cells	subject1	komentissuebank
+TGTGGTAAGGAATGGA-1_1	NK cells	subject1	komentissuebank
+CTGCCTAAGAACTGTA-1_1	NK cells	subject1	komentissuebank
+CATGACATCTGCTGTC-1_1	NK cells	subject1	komentissuebank
+CCGTTCATCGCATGGC-1_1	NK cells	subject1	komentissuebank
+TTCTTAGCACCTATCC-1_1	NK cells	subject1	komentissuebank
+TGAGGGATCTCATTCA-1_1	NK cells	subject1	komentissuebank
+CGGACTGGTTCAGCGC-1_1	NK cells	subject1	komentissuebank
+CATTCGCCAGCTTAAC-1_1	NK cells	subject1	komentissuebank
+TCGTAGAAGTGAACGC-1_1	NK cells	subject1	komentissuebank
+GGCTCGAAGTAGTGCG-1_1	NK cells	subject1	komentissuebank
+CTAACTTCAAGCGATG-1_1	NK cells	subject1	komentissuebank
+ACCGTAAGTGACGCCT-1_1	NK cells	subject1	komentissuebank
+ATGCGATAGTTGCAGG-1_1	NK cells	subject1	komentissuebank
+CACATTTGTTGAACTC-1_1	NK cells	subject1	komentissuebank
+ACGGAGACACCAGCAC-1_1	NK cells	subject1	komentissuebank
+GTACTCCGTTCGGGCT-1_1	Endothelial cells	subject1	komentissuebank
+CCGGTAGGTCTTCTCG-1_1	Endothelial cells	subject1	komentissuebank
+ATCATGGTCTGGTGTA-1_1	Endothelial cells	subject1	komentissuebank
+AGAGTGGTCTGCTTGC-1_1	Endothelial cells	subject1	komentissuebank
+CAACCAAGTAAAGTCA-1_1	Endothelial cells	subject1	komentissuebank
+TGCACCTCACATGTGT-1_1	Endothelial cells	subject1	komentissuebank
+GGCCGATGTATATGAG-1_1	Endothelial cells	subject1	komentissuebank
+TCTATTGTCGGAATCT-1_1	Endothelial cells	subject1	komentissuebank
+GGGCACTTCGCTTAGA-1_1	Endothelial cells	subject1	komentissuebank
+CGATGTAAGATGTCGG-1_1	Endothelial cells	subject1	komentissuebank
+TCACAAGAGACGCACA-1_1	Endothelial cells	subject1	komentissuebank
+GACCTGGAGCTCCTTC-1_1	Endothelial cells	subject1	komentissuebank
+GCTTGAAAGACCTAGG-1_1	Endothelial cells	subject1	komentissuebank
+AACTGGTGTTGTTTGG-1_1	Endothelial cells	subject1	komentissuebank
+ATCCGAAAGGTGGGTT-1_1	Endothelial cells	subject1	komentissuebank
+GCATGTAGTTAAGATG-1_1	Endothelial cells	subject1	komentissuebank
+CTCGGAGAGGTGTGGT-1_1	Endothelial cells	subject1	komentissuebank
+GATGAGGTCACCAGGC-1_1	Endothelial cells	subject1	komentissuebank
+ACACCAAAGTCCGTAT-1_1	Endothelial cells	subject1	komentissuebank
+AGATTGCTCTTGTATC-1_1	Endothelial cells	subject1	komentissuebank
+CCGTGGAAGTCATGCT-1_1	Pericytes	subject1	komentissuebank
+ACGCCAGCATATGAGA-1_1	Pericytes	subject1	komentissuebank
+GCTGCGAAGCCCGAAA-1_1	Pericytes	subject1	komentissuebank
+TTCCCAGAGCGACGTA-1_1	Pericytes	subject1	komentissuebank
+CATATTCCAGTGACAG-1_1	Pericytes	subject1	komentissuebank
+AAGTCTGTCTAACTGG-1_1	Pericytes	subject1	komentissuebank
+CTTGGCTCAAGCTGAG-1_1	Pericytes	subject1	komentissuebank
+TAAGTGCCACCTCGTT-1_1	Pericytes	subject1	komentissuebank
+ACTGAGTCAAGCCATT-1_1	Pericytes	subject1	komentissuebank
+GGGAGATTCCGCATCT-1_1	Pericytes	subject1	komentissuebank
+GATCGTAAGTGTCTCA-1_1	Pericytes	subject1	komentissuebank
+TTAGGCAAGGCTAGAC-1_1	Pericytes	subject1	komentissuebank
+TGACGGCAGAGCAATT-1_1	Pericytes	subject1	komentissuebank
+GAACGGACAATAGCAA-1_1	Pericytes	subject1	komentissuebank
+GGCTCGAGTATATGGA-1_1	Pericytes	subject1	komentissuebank
+GAATGAATCCGAATGT-1_1	Pericytes	subject1	komentissuebank
+GGGTCTGAGTACGCGA-1_1	Pericytes	subject1	komentissuebank
+CTCGTACGTCACCCAG-1_1	Pericytes	subject1	komentissuebank
+TGTTCCGCAGGTGGAT-1_1	Pericytes	subject1	komentissuebank
+TCAGCTCCAGCTATTG-1_1	Pericytes	subject1	komentissuebank

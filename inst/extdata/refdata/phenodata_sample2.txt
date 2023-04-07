@@ -1,0 +1,121 @@
+cellid	celltype	subjectid	cohort
+1744_8	Epithelial cells	subject2	gtex
+1155_8	Epithelial cells	subject2	gtex
+5407_8	Epithelial cells	subject2	gtex
+1571_8	Epithelial cells	subject2	gtex
+4156_8	Epithelial cells	subject2	gtex
+872_8	Epithelial cells	subject2	gtex
+5870_8	Epithelial cells	subject2	gtex
+538_8	Epithelial cells	subject2	gtex
+3186_8	Epithelial cells	subject2	gtex
+1038_8	Epithelial cells	subject2	gtex
+3492_8	Epithelial cells	subject2	gtex
+4977_8	Epithelial cells	subject2	gtex
+647_8	Epithelial cells	subject2	gtex
+4696_8	Epithelial cells	subject2	gtex
+4411_8	Epithelial cells	subject2	gtex
+4628_8	Epithelial cells	subject2	gtex
+67_8	Epithelial cells	subject2	gtex
+2717_8	Epithelial cells	subject2	gtex
+1229_8	Epithelial cells	subject2	gtex
+1475_8	Epithelial cells	subject2	gtex
+1946_8	Adipocyte	subject2	gtex
+5880_8	Adipocyte	subject2	gtex
+2464_8	Adipocyte	subject2	gtex
+1817_8	Adipocyte	subject2	gtex
+5561_8	Adipocyte	subject2	gtex
+2610_8	Adipocyte	subject2	gtex
+2362_8	Adipocyte	subject2	gtex
+2432_8	Adipocyte	subject2	gtex
+2545_8	Adipocyte	subject2	gtex
+1116_8	Adipocyte	subject2	gtex
+1146_8	Adipocyte	subject2	gtex
+2037_8	Adipocyte	subject2	gtex
+4194_8	Adipocyte	subject2	gtex
+272_8	Adipocyte	subject2	gtex
+3977_8	Adipocyte	subject2	gtex
+2012_8	Adipocyte	subject2	gtex
+5162_8	Adipocyte	subject2	gtex
+2040_8	Adipocyte	subject2	gtex
+2486_8	Adipocyte	subject2	gtex
+1561_8	Adipocyte	subject2	gtex
+1483_8	Monocytes	subject2	gtex
+3126_8	Monocytes	subject2	gtex
+1170_8	Monocytes	subject2	gtex
+4382_8	Monocytes	subject2	gtex
+751_8	Monocytes	subject2	gtex
+5433_8	Monocytes	subject2	gtex
+4937_8	Monocytes	subject2	gtex
+1083_8	Monocytes	subject2	gtex
+5765_8	Monocytes	subject2	gtex
+4160_8	Monocytes	subject2	gtex
+382_8	Monocytes	subject2	gtex
+3365_8	Monocytes	subject2	gtex
+1239_8	Monocytes	subject2	gtex
+608_8	Monocytes	subject2	gtex
+5008_8	Monocytes	subject2	gtex
+5270_8	Monocytes	subject2	gtex
+4861_8	Monocytes	subject2	gtex
+2568_8	Monocytes	subject2	gtex
+5521_8	Monocytes	subject2	gtex
+5690_8	Monocytes	subject2	gtex
+5170_8	Endothelial cells	subject2	gtex
+4106_8	Endothelial cells	subject2	gtex
+4320_8	Endothelial cells	subject2	gtex
+2318_8	Endothelial cells	subject2	gtex
+3633_8	Endothelial cells	subject2	gtex
+1669_8	Endothelial cells	subject2	gtex
+1536_8	Endothelial cells	subject2	gtex
+826_8	Endothelial cells	subject2	gtex
+1873_8	Endothelial cells	subject2	gtex
+3016_8	Endothelial cells	subject2	gtex
+5205_8	Endothelial cells	subject2	gtex
+3423_8	Endothelial cells	subject2	gtex
+4422_8	Endothelial cells	subject2	gtex
+4460_8	Endothelial cells	subject2	gtex
+5601_8	Endothelial cells	subject2	gtex
+3292_8	Endothelial cells	subject2	gtex
+5150_8	Endothelial cells	subject2	gtex
+1951_8	Endothelial cells	subject2	gtex
+3562_8	Endothelial cells	subject2	gtex
+4196_8	Endothelial cells	subject2	gtex
+5354_8	Fibroblast	subject2	gtex
+4384_8	Fibroblast	subject2	gtex
+5276_8	Fibroblast	subject2	gtex
+4953_8	Fibroblast	subject2	gtex
+4344_8	Fibroblast	subject2	gtex
+5923_8	Fibroblast	subject2	gtex
+1477_8	Fibroblast	subject2	gtex
+3550_8	Fibroblast	subject2	gtex
+1115_8	Fibroblast	subject2	gtex
+5906_8	Fibroblast	subject2	gtex
+3425_8	Fibroblast	subject2	gtex
+5511_8	Fibroblast	subject2	gtex
+1601_8	Fibroblast	subject2	gtex
+3400_8	Fibroblast	subject2	gtex
+1678_8	Fibroblast	subject2	gtex
+4159_8	Fibroblast	subject2	gtex
+3412_8	Fibroblast	subject2	gtex
+5677_8	Fibroblast	subject2	gtex
+1085_8	Fibroblast	subject2	gtex
+4391_8	Fibroblast	subject2	gtex
+3656_8	Pericytes	subject2	gtex
+2856_8	Pericytes	subject2	gtex
+2282_8	Pericytes	subject2	gtex
+3279_8	Pericytes	subject2	gtex
+3910_8	Pericytes	subject2	gtex
+3832_8	Pericytes	subject2	gtex
+2858_8	Pericytes	subject2	gtex
+3995_8	Pericytes	subject2	gtex
+3784_8	Pericytes	subject2	gtex
+3884_8	Pericytes	subject2	gtex
+2753_8	Pericytes	subject2	gtex
+2916_8	Pericytes	subject2	gtex
+495_8	Pericytes	subject2	gtex
+2581_8	Pericytes	subject2	gtex
+3692_8	Pericytes	subject2	gtex
+2204_8	Pericytes	subject2	gtex
+3604_8	Pericytes	subject2	gtex
+2500_8	Pericytes	subject2	gtex
+4173_8	Pericytes	subject2	gtex
+2826_8	Pericytes	subject2	gtex
