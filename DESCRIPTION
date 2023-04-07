@@ -18,6 +18,7 @@ Imports:
     foreach,
     future,
     ggplot2,
+    glmGamPoi,
     gtools,
     harmony,
     MASS,
