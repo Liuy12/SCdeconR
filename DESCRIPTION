@@ -13,18 +13,12 @@ RoxygenNote: 7.2.3
 Imports: 
     data.table,
     doFuture,
-    dplyr,
-    edgeR,
-    foreach,
     future,
-    ggplot2,
-    glmGamPoi,
     gtools,
     harmony,
     MASS,
     Matrix,
-    NMF,
-    Seurat
+    NMF
 Suggests: 
     DESeq2,
     FARDEEP,
@@ -44,5 +38,11 @@ Suggests:
     spacexr,
     xbioc
 Depends: 
-    R (>= 2.10)
+    dplyr,
+    edgeR,
+    foreach,
+    ggplot2,
+    glmGamPoi,
+    R (>= 2.10),
+    Seurat
 VignetteBuilder: knitr
