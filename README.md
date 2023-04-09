@@ -80,3 +80,7 @@ install.packages("plotly")
 ```r
 library(SCdeconR)
 ```
+
+See [liuy12.github.io/SCdeconR/](liuy12.github.io/SCdeconR/) for detailed documentation and tutorials. 
+
+
