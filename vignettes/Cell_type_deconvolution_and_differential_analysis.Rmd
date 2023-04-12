@@ -225,7 +225,7 @@ comparedeg_scatter(results1 = deres[[2]],
 
 As you can see, many false positive differential genes were detected without adjusting for cell proportion differences. 
 
-# Gene-set enrichment analysis 
+# Gene-set enrichment analysis
 
 We also provide several visualization options for pathway enrichment results generated using [GSEA](https://www.gsea-msigdb.org/gsea/index.jsp) software. Note that those functions are not compatible with the [R implementation](https://github.com/GSEA-MSigDB/GSEA_R) of GSEA. Also remember to run `reformt_gmt()` to reformat the gene-set names before using GSEA. 
 
