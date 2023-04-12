@@ -361,7 +361,7 @@ deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, py
     }))
   } else if (decon_method == "scaden") {
     if(is.null(tmpdir)) {
-      print("tmpdir not supplied. Creating tmpdir in current working directory.")
+      warning("tmpdir not supplied. Creating tmpdir in current working directory.")
       tmpdir <- paste0(getwd(), "/tmpdir/")
       dir.create(tmpdir)
     } else if(!dir.exists(tmpdir)) stop("tmpdir does not exist")
@@ -371,7 +371,7 @@ deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, py
     setwd(tmpdir)
     data.table::fwrite(as.matrix(Matrix::t(ref)), "./decon_counts.txt", col.names = TRUE, row.names = TRUE, sep = "\t", quote = FALSE)
     data.table::fwrite(data.frame(Celltype = phenodata$celltype), "./decon_celltypes.txt", col.names = TRUE, row.names = FALSE, sep = "\t", quote = FALSE)
-    data.table::fwrite(bulk, "./decon_bulk_data.txt", col.names = TRUE, row.names = TRUE, sep = "\t", quote = FALSE)
+    data.table::fwrite(as.data.frame(bulk), "./decon_bulk_data.txt", col.names = TRUE, row.names = TRUE, sep = "\t", quote = FALSE)
     if(verbose) message("running scaden, and it might take a while. Set verbose = TRUE to track progress. ")
     system(paste0("scaden simulate --data ./ --pattern '*_counts.txt'"), ignore.stdout = !verbose, ignore.stderr = !verbose)
     system(paste0("scaden process data.h5ad decon_bulk_data.txt"), ignore.stdout = !verbose, ignore.stderr = !verbose)
