@@ -141,7 +141,7 @@ scdecon <- function(
   if (decon_method == "scaden"){
     if (is.null(pythonpath) && reticulate::py_available()) {
       warning(paste0("pythonpath not specified, will use the python found here: ", reticulate::py_config()$python))
-      pythonpath <- "/Users/m182980/Library/r-miniconda/envs/r-reticulate/bin/python"
+      pythonpath <- reticulate::py_config()$python
     } else if(is.null(pythonpath) && (!reticulate::py_available())) stop("pythonpath not specified, and python cannot be found via py_available()")
     reticulate::use_python(pythonpath)
     if(!reticulate::py_module_available("scaden")) stop("scaden not installed. You can install scaden via pip or conda. See installation page for details")
