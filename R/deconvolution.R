@@ -344,7 +344,7 @@ deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, py
   } else if (decon_method == "MuSiC") {
     results <- t(MuSiC::music_prop(
       bulk.eset = bulk_eset, sc.eset = ref_eset, clusters = "celltype",
-      markers = NULL, normalize = FALSE, samples = "subjectname",
+      markers = NULL, normalize = FALSE, samples = "subjectid",
       verbose = FALSE
     )$Est.prop.weighted)
     fiterror <- data.frame(sample = colnames(results), RMSE = sapply(1:ncol(bulk), function(i) {
@@ -353,7 +353,7 @@ deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, py
       sqrt((mean((k - bulk[, i])^2)))
     }))
   } else if (decon_method == "SCDC") {
-    results <- t(SCDC::SCDC_prop(bulk.eset = bulk_eset, sc.eset = ref_eset, ct.varname = "celltype", sample = "subjectname", ct.sub = unique(as.character(phenodata$celltype)), iter.max = 200)$prop.est.mvw)
+    results <- t(SCDC::SCDC_prop(bulk.eset = bulk_eset, sc.eset = ref_eset, ct.varname = "celltype", sample = "subjectid", ct.sub = unique(as.character(phenodata$celltype)), iter.max = 200)$prop.est.mvw)
     fiterror <- data.frame(sample = colnames(results), RMSE = sapply(1:ncol(bulk), function(i) {
       u <- sweep(ref, MARGIN = 2, results[, i], "*")
       k <- apply(u, 1, sum)
