@@ -15,6 +15,12 @@
 #'  \item subject ids
 #' }
 #' @param filter_ref logical value indicating whether outlier genes & cells should be removed from the provided reference data. Defaults to TRUE
+#' @param marker_genes a data.frame of two columns. First column represents cell types in ref; second column represents gene names of marker genes. If specified,
+#' those genes will be used to construct signature matrix for mark-gene based deconvolution methods, such as CIBERSORT, OLS, nnls, FARDEEP and RLR. Default to NULL,
+#' carry out differential analysis to identify marker genes for each cell type in ref.
+#' @param min_pct a numeric value indicating the minimum required percentage of expressing cells for genes. Only applicable when filter_ref is TRUE. Default to 0.05 (5%).
+#' @param min_pct_ct a numeric value indicating the minimum required percentage of expressing cells per cell type for marker gene identification. Only applicable when marker_genes
+#' is NULL. Default to 0.3 (30%).
 #' @param decon_method character value specifying the deconvolution method to use. Has to be one of "scaden", "CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR",
 #' "MuSiC", "SCDC". See details for more information.
 #' @param norm_method character value specifying the normalization method to use for both bulk & reference data. Has to be one of "none","LogNormalize", "TMM",
@@ -24,9 +30,9 @@
 #' @param gene_length a data.frame with two columns. The first column represents gene names that match with provided bulk data. The second column
 #' represents length of each gene. Only applicable when norm_method is selected as "TPM".
 #' @param lfc_markers log2 fold change cutoff used to identify marker genes for deconvolution. The option only applicable to marker-gene based
-#' approaches, such as CIBERSORT, OLS, nnls, FARDEEP and RLR.
+#' approaches, such as CIBERSORT, OLS, nnls, FARDEEP and RLR. Only applicable when marker_genes is NULL.
 #' @param marker_strategy further strategy in selecting marker genes besides applying the log2 fold change cutoff. Can be chosen from: "all", "pos_fc",
-#' "top_50p_logFC" or "top_50p_AveExpr". See details for more information.
+#' "top_50p_logFC" or "top_50p_AveExpr". See details for more information. Only applicable when marker_genes is NULL.
 #' @param to_remove character value representing the cell type to remove from reference data. Only applicable to simulation experiments in evaluating
 #' effect of cell type removal from reference.
 #' @param ffpe_artifacts logical value indicating whether to add simulated ffpe artifacts in the bulk data. Only applicable to simulation experiments in
@@ -39,11 +45,12 @@
 #' @param seed random seed used for simulating FFPE artifacts. Only applicable when ffpe_artifacts is set to TRUE.
 #' @param verbose a logical value indicating whether to print messages. Default to FALSE.
 #'
-#' @return a list containing two or three elements.
+#' @return a list containing two or four elements.
 #' \describe{
 #'  \item{first element}{a data.frame of predicted cell-type proportions, with rows representing cell types, columns representing samples.}
 #'  \item{second element}{a data.frame of fitting errors of the algorithm; first column represents sample names, second column represents RMSEs.}
 #'  \item{optional third element}{a data.frame of simulated cell proportion after removing the specified cell_type. Only applicable to simulation experiments.}
+#'  \item{optional fourth element}{a data.frame of marker genes used for deconvolution. Only applicable to marker-gene based deconvolution methods.}
 #' }
 #'
 #' @details
@@ -120,6 +127,9 @@ scdecon <- function(
     ref,
     phenodata,
     filter_ref = TRUE,
+    marker_genes = NULL,
+    min_pct = 0.05,
+    min_pct_ct = 0.3,
     decon_method = c("scaden", "CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR", "MuSiC", "SCDC"),
     norm_method = c("none","LogNormalize", "TMM", "median_ratios", "TPM", "SCTransform", "scran", "scater", "Linnorm"),
     trans_method = c("none", "log", "sqrt", "vst"),
@@ -162,6 +172,9 @@ scdecon <- function(
       stop("gene names for gene_length are not consistent with row names of bulk")
     }
   }
+  if(!length(intersect(rownames(ref), rownames(bulk)))) stop("no overlapping genes/rownames between ref and bulk")
+  if((!is.null(marker_genes)) & (ncol(marker_genes) !=2)) stop("marker_genes need to be a data.frame with two columns (cell type, gene name)")
+  if((!is.null(marker_genes)) & (!length(Reduce(intersect, list(marker_genes[,2], rownames(bulk), rownames(ref)))))) stop("no overlapping genes between supplied marker gene list and ref/bulk")
   phenodata <- phenodata[match(colnames(ref), phenodata$cellid), ]
   rownames(phenodata) <- phenodata$cellid
   if (filter_ref) {
@@ -184,41 +197,47 @@ scdecon <- function(
       ref <- ref[, -cellstoremove]
       phenodata <- phenodata[-cellstoremove, ]
     }
-    keep <- which(rowSums(ref > 0) >= round(0.05 * ncol(ref)))
+    keep <- which(rowSums(ref > 0) >= round(min_pct * ncol(ref)))
     ref <- ref[keep, ]
   }
   if(decon_type == "bulk"){
-    if(verbose) message("find cell type marker genes using limma")
     celltypes <- phenodata$celltype
     avgexp_ct <- lapply(unique(celltypes), function(i) rowMeans(ref[, celltypes == i]))
     avgexp_ct <- do.call(cbind.data.frame, avgexp_ct)
     colnames(avgexp_ct) <- unique(celltypes)
-    keep <- sapply(unique(celltypes), function(i) {
-      ct_hits <- which(celltypes == i)
-      size <- ceiling(0.3 * length(ct_hits))
-      rowSums(ref[, ct_hits, drop = FALSE] != 0) >= size
-    })
-    ref_sel <- ref[rowSums(keep) > 0, ]
-    ref_sel <- Normalization(ref_sel)
-    annotation <- factor(celltypes)
-    design <- model.matrix(~ 0 + annotation)
-    colnames(design) <- gsub("annotation", "", colnames(design))
-    cont_matrix <- matrix((-1 / ncol(design)), nrow = ncol(design), ncol = ncol(design))
-    colnames(cont_matrix) <- colnames(design)
-    diag(cont_matrix) <- (ncol(design) - 1) / ncol(design)
-    tmp <- voom(ref_sel, design = design, plot = FALSE)
-    fit <- lmFit(tmp, design)
-    fit2 <- contrasts.fit(fit, cont_matrix)
-    fit2 <- eBayes(fit2, trend = TRUE)
-    markers <- markerfc(fit2, log2_threshold = lfc_markers)
-  }
+    if(is.null(marker_genes)){
+      if(verbose) message("find cell type marker genes using limma")
+      keep <- sapply(unique(celltypes), function(i) {
+        ct_hits <- which(celltypes == i)
+        size <- ceiling(min_pct_ct * length(ct_hits))
+        rowSums(ref[, ct_hits, drop = FALSE] != 0) >= size
+      })
+      ref_sel <- ref[rowSums(keep) > 0, ]
+      ref_sel <- Normalization(ref_sel)
+      annotation <- factor(celltypes)
+      design <- model.matrix(~ 0 + annotation)
+      colnames(design) <- gsub("annotation", "", colnames(design))
+      cont_matrix <- matrix((-1 / ncol(design)), nrow = ncol(design), ncol = ncol(design))
+      colnames(cont_matrix) <- colnames(design)
+      diag(cont_matrix) <- (ncol(design) - 1) / ncol(design)
+      tmp <- voom(ref_sel, design = design, plot = FALSE)
+      fit <- lmFit(tmp, design)
+      fit2 <- contrasts.fit(fit, cont_matrix)
+      fit2 <- eBayes(fit2, trend = TRUE)
+      markers <- markerfc(fit2, log2_threshold = lfc_markers)
+      if(length(unique(markers$CT)) != length(unique(phenodata$celltype))) warning(paste0("some cell types don't have marker genes: ", paste0(setdiff(unique(phenodata$celltype), unique(markers$CT)), collapse = ',')))
+    } else {
+      colnames(marker_genes) <- c("CT", "gene")
+      if(length(unique(marker_genes$CT)) != length(unique(phenodata$celltype))) warning(paste0("some cell types don't have marker genes: ", paste0(setdiff(unique(phenodata$celltype), unique(marker_genes$CT)), collapse = ',')))
+      }
+    }
   if (decon_type == "bulk") {
     if(verbose) message(paste0("perform transformation using ", trans_method, "; and normalization using ", norm_method,"."))
     bulk <- transformation(bulk, trans_method)
     avgexp_ct <- transformation(avgexp_ct, trans_method)
     bulk <- scaling(bulk, norm_method, ffpe_artifacts = ffpe_artifacts, gene_length = gene_length)
     avgexp_ct <- scaling(avgexp_ct, norm_method, ffpe_artifacts = FALSE, gene_length = gene_length)
-    marker_distrib <- marker_strategies(markers, marker_strategy)
+    if(is.null(marker_genes)) marker_distrib <- marker_strategies(markers, marker_strategy) else marker_distrib <- marker_genes
     if(!is.null(to_remove)){
       if(verbose) message(paste0("remove specified cell type: ", to_remove, "."))
       bulk <- bulk[,prop[to_remove,] != 0]
@@ -234,11 +253,23 @@ scdecon <- function(
     ref <- transformation(ref, trans_method)
     bulk <- scaling(bulk, norm_method, ffpe_artifacts = ffpe_artifacts, gene_length = gene_length)
     ref <- scaling(ref, norm_method, ffpe_artifacts = FALSE, gene_length = gene_length)
+    if(!is.null(to_remove)){
+      if(verbose) message(paste0("remove specified cell type: ", to_remove, "."))
+      bulk <- bulk[,prop[to_remove,] != 0]
+      ref <- ref[,phenodata$celltype != to_remove]
+      prop <- prop[!rownames(prop) %in% to_remove, colnames(bulk)]
+      phenodata <- phenodata[phenodata$celltype != to_remove,]
+    }
     if(verbose) message(paste0("perform deconvolution analysis using ", decon_method, "."))
     results <- deconvolution(bulk = bulk, ref = ref, decon_method = decon_method, phenodata = phenodata, pythonpath = pythonpath, tmpdir = tmpdir, verbose = verbose)
   }
-  results[[3]] <- prop
-  return(results)
+  output <- vector(mode = "list", length = 4)
+  output[[1]] <- results[[1]]
+  output[[2]] <- results[[2]]
+  if(!is.null(prop)) output[[3]] <- prop
+  if(decon_type == "bulk") output[[4]] <- marker_distrib
+  names(output) <- c("prediction", "fit_error", "proportion", "markers")
+  return(output)
 }
 
 

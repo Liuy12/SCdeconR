@@ -9,6 +9,9 @@ scdecon(
   ref,
   phenodata,
   filter_ref = TRUE,
+  marker_genes = NULL,
+  min_pct = 0.05,
+  min_pct_ct = 0.3,
   decon_method = c("scaden", "CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR", "MuSiC",
     "SCDC"),
   norm_method = c("none", "LogNormalize", "TMM", "median_ratios", "TPM", "SCTransform",
@@ -44,6 +47,15 @@ columns as:
 
 \item{filter_ref}{logical value indicating whether outlier genes & cells should be removed from the provided reference data. Defaults to TRUE}
 
+\item{marker_genes}{a data.frame of two columns. First column represents cell types in ref; second column represents gene names of marker genes. If specified,
+those genes will be used to construct signature matrix for mark-gene based deconvolution methods, such as CIBERSORT, OLS, nnls, FARDEEP and RLR. Default to NULL,
+carry out differential analysis to identify marker genes for each cell type in ref.}
+
+\item{min_pct}{a numeric value indicating the minimum required percentage of expressing cells for genes. Only applicable when filter_ref is TRUE. Default to 0.05 (5%).}
+
+\item{min_pct_ct}{a numeric value indicating the minimum required percentage of expressing cells per cell type for marker gene identification. Only applicable when marker_genes
+is NULL. Default to 0.3 (30%).}
+
 \item{decon_method}{character value specifying the deconvolution method to use. Has to be one of "scaden", "CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR",
 "MuSiC", "SCDC". See details for more information.}
 
@@ -57,10 +69,10 @@ columns as:
 represents length of each gene. Only applicable when norm_method is selected as "TPM".}
 
 \item{lfc_markers}{log2 fold change cutoff used to identify marker genes for deconvolution. The option only applicable to marker-gene based
-approaches, such as CIBERSORT, OLS, nnls, FARDEEP and RLR.}
+approaches, such as CIBERSORT, OLS, nnls, FARDEEP and RLR. Only applicable when marker_genes is NULL.}
 
 \item{marker_strategy}{further strategy in selecting marker genes besides applying the log2 fold change cutoff. Can be chosen from: "all", "pos_fc",
-"top_50p_logFC" or "top_50p_AveExpr". See details for more information.}
+"top_50p_logFC" or "top_50p_AveExpr". See details for more information. Only applicable when marker_genes is NULL.}
 
 \item{to_remove}{character value representing the cell type to remove from reference data. Only applicable to simulation experiments in evaluating
 effect of cell type removal from reference.}
@@ -82,11 +94,12 @@ experiments in evaluating the effect of cell type removal from reference.}
 \item{verbose}{a logical value indicating whether to print messages. Default to FALSE.}
 }
 \value{
-a list containing two or three elements.
+a list containing two or four elements.
 \describe{
  \item{first element}{a data.frame of predicted cell-type proportions, with rows representing cell types, columns representing samples.}
  \item{second element}{a data.frame of fitting errors of the algorithm; first column represents sample names, second column represents RMSEs.}
  \item{optional third element}{a data.frame of simulated cell proportion after removing the specified cell_type. Only applicable to simulation experiments.}
+ \item{optional fourth element}{a data.frame of marker genes used for deconvolution. Only applicable to marker-gene based deconvolution methods.}
 }
 }
 \description{
