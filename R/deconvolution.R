@@ -18,9 +18,9 @@
 #' @param marker_genes a data.frame of two columns. First column represents cell types in ref; second column represents gene names of marker genes. If specified,
 #' those genes will be used to construct signature matrix for mark-gene based deconvolution methods, such as CIBERSORT, OLS, nnls, FARDEEP and RLR. Default to NULL,
 #' carry out differential analysis to identify marker genes for each cell type in ref.
-#' @param min_pct a numeric value indicating the minimum required percentage of expressing cells for genes. Only applicable when filter_ref is TRUE. Default to 0.05 (5%).
-#' @param min_pct_ct a numeric value indicating the minimum required percentage of expressing cells per cell type for marker gene identification. Only applicable when marker_genes
-#' is NULL. Default to 0.3 (30%).
+#' @param min_pct a numeric value indicating the minimum required proportion of expressing cells for genes. Only applicable when filter_ref is TRUE. Default to 0.05.
+#' @param min_pct_ct a numeric value indicating the minimum required proportion of expressing cells per cell type for marker gene identification. Only applicable when marker_genes
+#' is NULL. Default to 0.3.
 #' @param decon_method character value specifying the deconvolution method to use. Has to be one of "scaden", "CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR",
 #' "MuSiC", "SCDC". See details for more information.
 #' @param norm_method character value specifying the normalization method to use for both bulk & reference data. Has to be one of "none","LogNormalize", "TMM",
@@ -43,6 +43,7 @@
 #' @param pythonpath full path to python binary where scaden was installed with.
 #' @param tmpdir temporary processing directory for scaden.
 #' @param seed random seed used for simulating FFPE artifacts. Only applicable when ffpe_artifacts is set to TRUE.
+#' @param nsamples number of artificial bulk samples to simulate for scaden. Default to 1000.
 #' @param verbose a logical value indicating whether to print messages. Default to FALSE.
 #'
 #' @return a list containing two or four elements.
@@ -143,6 +144,7 @@ scdecon <- function(
     pythonpath = NULL,
     tmpdir = NULL,
     seed = 1234,
+    nsamples = 1000,
     verbose = FALSE) {
   if (!decon_method %in% c("CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR", "MuSiC", "SCDC", "scaden")) stop(paste0("decon_method must be one of ", paste0(c("CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR", "MuSiC", "SCDC", "scaden"), collapse = ",")))
   if (!norm_method %in% c("none","LogNormalize", "TMM", "median_ratios", "TPM", "SCTransform", "scran", "scater", "Linnorm")) stop(paste0("norm_method must be one of ", paste0(c("none","LogNormalize", "TMM", "median_ratios", "TPM", "SCTransform", "scran", "scater", "Linnorm"), collapse = ",")))
@@ -173,8 +175,8 @@ scdecon <- function(
     }
   }
   if(!length(intersect(rownames(ref), rownames(bulk)))) stop("no overlapping genes/rownames between ref and bulk")
-  if((!is.null(marker_genes)) & (ncol(marker_genes) !=2)) stop("marker_genes need to be a data.frame with two columns (cell type, gene name)")
-  if((!is.null(marker_genes)) & (!length(Reduce(intersect, list(marker_genes[,2], rownames(bulk), rownames(ref)))))) stop("no overlapping genes between supplied marker gene list and ref/bulk")
+  if((!is.null(marker_genes)) && (ncol(marker_genes) !=2)) stop("marker_genes need to be a data.frame with two columns (cell type, gene name)")
+  if((!is.null(marker_genes)) && (!length(Reduce(intersect, list(marker_genes[,2], rownames(bulk), rownames(ref)))))) stop("no overlapping genes between supplied marker gene list and ref/bulk")
   phenodata <- phenodata[match(colnames(ref), phenodata$cellid), ]
   rownames(phenodata) <- phenodata$cellid
   if (filter_ref) {
@@ -261,7 +263,7 @@ scdecon <- function(
       phenodata <- phenodata[phenodata$celltype != to_remove,]
     }
     if(verbose) message(paste0("perform deconvolution analysis using ", decon_method, "."))
-    results <- deconvolution(bulk = bulk, ref = ref, decon_method = decon_method, phenodata = phenodata, pythonpath = pythonpath, tmpdir = tmpdir, verbose = verbose)
+    results <- deconvolution(bulk = bulk, ref = ref, decon_method = decon_method, phenodata = phenodata, pythonpath = pythonpath, tmpdir = tmpdir, verbose = verbose, nsamples = nsamples)
   }
   output <- vector(mode = "list", length = 4)
   output[[1]] <- results[[1]]
@@ -301,7 +303,7 @@ prop_barplot <- function(prop, sort = TRUE, interactive = FALSE){
 }
 
 
-deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, pythonpath = NULL, cibersortpath = NULL, tmpdir = NULL, verbose = FALSE) {
+deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, pythonpath = NULL, cibersortpath = NULL, tmpdir = NULL, verbose = FALSE, nsamples = 1000) {
   bulk_methods <- c("CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR")
   sc_methods <- c("MuSiC", "SCDC", "scaden")
 
@@ -373,8 +375,8 @@ deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, py
       sqrt((mean((k - bulk[, i])^2)))
     }))
   } else if (decon_method == "MuSiC") {
-    results <- t(MuSiC::music_prop(
-      bulk.eset = bulk_eset, sc.eset = ref_eset, clusters = "celltype",
+    results <- t(music_prop(
+      bulk_eset, ref_eset, clusters = "celltype",
       markers = NULL, normalize = FALSE, samples = "subjectid",
       verbose = FALSE
     )$Est.prop.weighted)
@@ -404,7 +406,7 @@ deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, py
     data.table::fwrite(data.frame(Celltype = phenodata$celltype), "./decon_celltypes.txt", col.names = TRUE, row.names = FALSE, sep = "\t", quote = FALSE)
     data.table::fwrite(as.data.frame(bulk), "./decon_bulk_data.txt", col.names = TRUE, row.names = TRUE, sep = "\t", quote = FALSE)
     if(verbose) message("running scaden, and it might take a while. Set verbose = TRUE to track progress. ")
-    system(paste0("scaden simulate --data ./ --pattern '*_counts.txt'"), ignore.stdout = !verbose, ignore.stderr = !verbose)
+    system(paste0("scaden simulate --data ./ --pattern '*_counts.txt'", " -n ", nsamples), ignore.stdout = !verbose, ignore.stderr = !verbose)
     system(paste0("scaden process data.h5ad decon_bulk_data.txt"), ignore.stdout = !verbose, ignore.stderr = !verbose)
     system(paste0("scaden train processed.h5ad --steps 5000 --model_dir model"), ignore.stdout = !verbose, ignore.stderr = !verbose)
     system(paste0("scaden predict --model_dir model decon_bulk_data.txt"), ignore.stdout = !verbose, ignore.stderr = !verbose)
