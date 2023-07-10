@@ -27,6 +27,7 @@ scdecon(
   pythonpath = NULL,
   tmpdir = NULL,
   seed = 1234,
+  nsamples = 1000,
   verbose = FALSE
 )
 }
@@ -51,10 +52,10 @@ columns as:
 those genes will be used to construct signature matrix for mark-gene based deconvolution methods, such as CIBERSORT, OLS, nnls, FARDEEP and RLR. Default to NULL,
 carry out differential analysis to identify marker genes for each cell type in ref.}
 
-\item{min_pct}{a numeric value indicating the minimum required percentage of expressing cells for genes. Only applicable when filter_ref is TRUE. Default to 0.05 (5%).}
+\item{min_pct}{a numeric value indicating the minimum required proportion of expressing cells for genes. Only applicable when filter_ref is TRUE. Default to 0.05.}
 
-\item{min_pct_ct}{a numeric value indicating the minimum required percentage of expressing cells per cell type for marker gene identification. Only applicable when marker_genes
-is NULL. Default to 0.3 (30%).}
+\item{min_pct_ct}{a numeric value indicating the minimum required proportion of expressing cells per cell type for marker gene identification. Only applicable when marker_genes
+is NULL. Default to 0.3.}
 
 \item{decon_method}{character value specifying the deconvolution method to use. Has to be one of "scaden", "CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR",
 "MuSiC", "SCDC". See details for more information.}
@@ -90,6 +91,8 @@ experiments in evaluating the effect of cell type removal from reference.}
 \item{tmpdir}{temporary processing directory for scaden.}
 
 \item{seed}{random seed used for simulating FFPE artifacts. Only applicable when ffpe_artifacts is set to TRUE.}
+
+\item{nsamples}{number of artificial bulk samples to simulate for scaden. Default to 1000.}
 
 \item{verbose}{a logical value indicating whether to print messages. Default to FALSE.}
 }
