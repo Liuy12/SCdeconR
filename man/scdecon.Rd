@@ -10,13 +10,16 @@ scdecon(
   phenodata,
   filter_ref = TRUE,
   marker_genes = NULL,
-  min_pct = 0.05,
-  min_pct_ct = 0.3,
+  genes_to_remove = NULL,
+  min_pct_ct = 0.05,
   decon_method = c("scaden", "CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR", "MuSiC",
     "SCDC"),
-  norm_method = c("none", "LogNormalize", "TMM", "median_ratios", "TPM", "SCTransform",
-    "scran", "scater", "Linnorm"),
-  trans_method = c("none", "log", "sqrt", "vst"),
+  norm_method_sc = c("none", "LogNormalize", "TMM", "median_ratios", "TPM",
+    "SCTransform", "scran", "scater", "Linnorm"),
+  norm_method_bulk = c("none", "LogNormalize", "TMM", "median_ratios", "TPM",
+    "SCTransform", "scran", "scater", "Linnorm"),
+  trans_method_sc = c("none", "log", "sqrt", "vst"),
+  trans_method_bulk = c("none", "log", "sqrt", "vst"),
   gene_length = NULL,
   lfc_markers = log2(1.5),
   marker_strategy = c("all", "pos_fc", "top_50p_logFC", "top_50p_AveExpr"),
@@ -26,6 +29,7 @@ scdecon(
   cibersortpath = NULL,
   pythonpath = NULL,
   tmpdir = NULL,
+  remove_tmpdir = TRUE,
   seed = 1234,
   nsamples = 1000,
   verbose = FALSE
@@ -52,18 +56,24 @@ columns as:
 those genes will be used to construct signature matrix for mark-gene based deconvolution methods, such as CIBERSORT, OLS, nnls, FARDEEP and RLR. Default to NULL,
 carry out differential analysis to identify marker genes for each cell type in ref.}
 
-\item{min_pct}{a numeric value indicating the minimum required proportion of expressing cells for genes. Only applicable when filter_ref is TRUE. Default to 0.05.}
+\item{genes_to_remove}{a vector of gene names to remove from the reference scRNA-seq data. Default to NULL.}
 
 \item{min_pct_ct}{a numeric value indicating the minimum required proportion of expressing cells per cell type for marker gene identification. Only applicable when marker_genes
-is NULL. Default to 0.3.}
+is NULL. Default to 0.05.}
 
 \item{decon_method}{character value specifying the deconvolution method to use. Has to be one of "scaden", "CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR",
 "MuSiC", "SCDC". See details for more information.}
 
-\item{norm_method}{character value specifying the normalization method to use for both bulk & reference data. Has to be one of "none","LogNormalize", "TMM",
+\item{norm_method_sc}{character value specifying the normalization method to use for both bulk & reference data. Has to be one of "none","LogNormalize", "TMM",
 "median_ratios", "TPM", "SCTransform", "scran", "scater", "Linnorm". See details for more information.}
 
-\item{trans_method}{character value specifying the transformation method to use for both bulk & reference data. Has to be one of "none", "log", "sqrt",
+\item{norm_method_bulk}{character value specifying the normalization method to use for both bulk & reference data. Has to be one of "none","LogNormalize", "TMM",
+"median_ratios", "TPM", "SCTransform", "scran", "scater", "Linnorm". See details for more information.}
+
+\item{trans_method_sc}{character value specifying the transformation method to use for both bulk & reference data. Has to be one of "none", "log", "sqrt",
+"vst". See details for more information.}
+
+\item{trans_method_bulk}{character value specifying the transformation method to use for both bulk & reference data. Has to be one of "none", "log", "sqrt",
 "vst". See details for more information.}
 
 \item{gene_length}{a data.frame with two columns. The first column represents gene names that match with provided bulk data. The second column
@@ -89,6 +99,8 @@ experiments in evaluating the effect of cell type removal from reference.}
 \item{pythonpath}{full path to python binary where scaden was installed with.}
 
 \item{tmpdir}{temporary processing directory for scaden.}
+
+\item{remove_tmpdir}{a logical value indicating whether to remove tmpdir once scaden is completed. Default to TRUE.}
 
 \item{seed}{random seed used for simulating FFPE artifacts. Only applicable when ffpe_artifacts is set to TRUE.}
 
