@@ -95,16 +95,16 @@ marker_strategies <- function(marker_distrib, marker_strategy) {
 }
 
 #' Transformation of gene expression data
-#' 
+#'
 #' Methods to use for data transformation.
-#' 
+#'
 #' @param matrix a matrix-like objector of gene expression values with rows representing genes, columns representing samples or cells
 #' @param option character value specifying the transformation method to use. Has to be one of "none", "log", "sqrt", "vst".
 #' @return a matrix-like object with the same dimension of input object after data transformation.
-#' 
-#' @details 
+#'
+#' @details
 #' refer to \code{\link{scdecon}} for more details.
-#' @export 
+#' @export
 
 
 transformation <- function(matrix, option) {
@@ -116,7 +116,7 @@ transformation <- function(matrix, option) {
   }
 
   if (option == "log2") {
-    matrix <- log2(matrix + 0.1)
+    matrix <- log2(matrix + 1)
   }
 
   if (option == "sqrt") {
@@ -132,23 +132,23 @@ transformation <- function(matrix, option) {
 
 
 #' Normalization of gene expression data
-#' 
+#'
 #' Methods to use for data normalization.
-#' 
+#'
 #' @param matrix a matrix-like objector of gene expression values with rows representing genes, columns representing samples or cells
-#' @param option character value specifying the normalization method to use. Has to be one of "none", "LogNormalize", "TMM", "median_ratios", "TPM", 
+#' @param option character value specifying the normalization method to use. Has to be one of "none", "LogNormalize", "TMM", "median_ratios", "TPM",
 #' "SCTransform", "scran", "scater", "Linnorm".
-#' @param genelength a data.frame with two columns. The first column represents gene names that match with provided bulk data. The second column 
+#' @param genelength a data.frame with two columns. The first column represents gene names that match with provided bulk data. The second column
 #' represents length of each gene. Only applicable when norm_method is selected as "TPM"
 #' @param seed random seed used for simulating FFPE artifacts. Only applicable when ffpe_artifacts is set to TRUE.
 #' @param ffpe_artifacts logical value indicating whether to add simulated ffpe artifacts in the bulk data. Only applicable to simulation experiments in
-#' evaluating the effect of FFPE artifacts. 
-#' 
+#' evaluating the effect of FFPE artifacts.
+#'
 #' @return a matrix-like object with the same dimension of input object after data normalization.
-#' 
-#' @details 
+#'
+#' @details
 #' refer to \code{\link{scdecon}} for more details.
-#' @export 
+#' @export
 
 
 scaling <- function(matrix, option, gene_length = NULL, seed = 1234, ffpe_artifacts = FALSE) {
@@ -187,7 +187,7 @@ scaling <- function(matrix, option, gene_length = NULL, seed = 1234, ffpe_artifa
   } else if (option == "TPM") {
     require(edgeR)
     require(dplyr)
-    require(mgcv) 
+    require(mgcv)
     matrix <- matrix[rownames(matrix) %in% gene_length$GeneName, ]
     matrix <- matrix %>%
       DGEList() %>%

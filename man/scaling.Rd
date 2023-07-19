@@ -15,7 +15,7 @@ scaling(
 \arguments{
 \item{matrix}{a matrix-like objector of gene expression values with rows representing genes, columns representing samples or cells}
 
-\item{option}{character value specifying the normalization method to use. Has to be one of "none", "LogNormalize", "TMM", "median_ratios", "TPM", 
+\item{option}{character value specifying the normalization method to use. Has to be one of "none", "LogNormalize", "TMM", "median_ratios", "TPM",
 "SCTransform", "scran", "scater", "Linnorm".}
 
 \item{seed}{random seed used for simulating FFPE artifacts. Only applicable when ffpe_artifacts is set to TRUE.}
@@ -23,7 +23,7 @@ scaling(
 \item{ffpe_artifacts}{logical value indicating whether to add simulated ffpe artifacts in the bulk data. Only applicable to simulation experiments in
 evaluating the effect of FFPE artifacts.}
 
-\item{genelength}{a data.frame with two columns. The first column represents gene names that match with provided bulk data. The second column 
+\item{genelength}{a data.frame with two columns. The first column represents gene names that match with provided bulk data. The second column
 represents length of each gene. Only applicable when norm_method is selected as "TPM"}
 }
 \value{

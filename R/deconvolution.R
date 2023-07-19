@@ -23,13 +23,13 @@
 #' is NULL. Default to 0.05.
 #' @param decon_method character value specifying the deconvolution method to use. Has to be one of "scaden", "CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR",
 #' "MuSiC", "SCDC". See details for more information.
-#' @param norm_method_sc character value specifying the normalization method to use for both bulk & reference data. Has to be one of "none","LogNormalize", "TMM",
-#' "median_ratios", "TPM", "SCTransform", "scran", "scater", "Linnorm". See details for more information.
-#' @param norm_method_bulk character value specifying the normalization method to use for both bulk & reference data. Has to be one of "none","LogNormalize", "TMM",
-#' "median_ratios", "TPM", "SCTransform", "scran", "scater", "Linnorm". See details for more information.
-#' @param trans_method_sc character value specifying the transformation method to use for both bulk & reference data. Has to be one of "none", "log", "sqrt",
+#' @param norm_method_sc character value specifying the normalization method to use for reference data. Has to be one of "none","LogNormalize",
+#' "SCTransform", "scran", "scater", "Linnorm". See details for more information.
+#' @param norm_method_bulk character value specifying the normalization method to use for bulk data. Has to be one of "none", "TMM",
+#' "median_ratios", "TPM". See details for more information.
+#' @param trans_method_sc character value specifying the transformation method to use for both bulk & reference data. Has to be one of "none", "log2", "sqrt",
 #' "vst". See details for more information.
-#' @param trans_method_bulk character value specifying the transformation method to use for both bulk & reference data. Has to be one of "none", "log", "sqrt",
+#' @param trans_method_bulk character value specifying the transformation method to use for both bulk & reference data. Has to be one of "none", "log2", "sqrt",
 #' "vst". See details for more information.
 #' @param gene_length a data.frame with two columns. The first column represents gene names that match with provided bulk data. The second column
 #' represents length of each gene. Only applicable when norm_method is selected as "TPM".
@@ -137,10 +137,10 @@ scdecon <- function(
     genes_to_remove = NULL,
     min_pct_ct = 0.05,
     decon_method = c("scaden", "CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR", "MuSiC", "SCDC"),
-    norm_method_sc = c("none","LogNormalize", "TMM", "median_ratios", "TPM", "SCTransform", "scran", "scater", "Linnorm"),
-    norm_method_bulk = c("none","LogNormalize", "TMM", "median_ratios", "TPM", "SCTransform", "scran", "scater", "Linnorm"),
-    trans_method_sc = c("none", "log", "sqrt", "vst"),
-    trans_method_bulk = c("none", "log", "sqrt", "vst"),
+    norm_method_sc = c("none","LogNormalize", "SCTransform", "scran", "scater", "Linnorm"),
+    norm_method_bulk = c("none", "TMM", "median_ratios", "TPM"),
+    trans_method_sc = c("none", "log2", "sqrt", "vst"),
+    trans_method_bulk = c("none", "log2", "sqrt", "vst"),
     gene_length = NULL,
     lfc_markers = log2(1.5),
     marker_strategy = c("all", "pos_fc", "top_50p_logFC", "top_50p_AveExpr"),
@@ -155,10 +155,10 @@ scdecon <- function(
     nsamples = 1000,
     verbose = FALSE) {
   if (!decon_method %in% c("CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR", "MuSiC", "SCDC", "scaden")) stop(paste0("decon_method must be one of ", paste0(c("CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR", "MuSiC", "SCDC", "scaden"), collapse = ",")))
-  if (!norm_method_sc %in% c("none","LogNormalize", "TMM", "median_ratios", "TPM", "SCTransform", "scran", "scater", "Linnorm")) stop(paste0("norm_method_sc must be one of ", paste0(c("none","LogNormalize", "TMM", "median_ratios", "TPM", "SCTransform", "scran", "scater", "Linnorm"), collapse = ",")))
-  if (!norm_method_bulk %in% c("none","LogNormalize", "TMM", "median_ratios", "TPM", "SCTransform", "scran", "scater", "Linnorm")) stop(paste0("norm_method_bulk must be one of ", paste0(c("none","LogNormalize", "TMM", "median_ratios", "TPM", "SCTransform", "scran", "scater", "Linnorm"), collapse = ",")))
-  if (!trans_method_sc %in% c("none", "log", "sqrt", "vst")) stop(paste0("trans_method_sc must be one of ", paste0(c("none", "log", "sqrt", "vst"), collapse = ",")))
-  if (!trans_method_bulk %in% c("none", "log", "sqrt", "vst")) stop(paste0("trans_method_bulk must be one of ", paste0(c("none", "log", "sqrt", "vst"), collapse = ",")))
+  if (!norm_method_sc %in% c("none","LogNormalize", "SCTransform", "scran", "scater", "Linnorm")) stop(paste0("norm_method_sc must be one of ", paste0(c("none","LogNormalize", "SCTransform", "scran", "scater", "Linnorm"), collapse = ",")))
+  if (!norm_method_bulk %in% c("none", "TMM", "median_ratios", "TPM")) stop(paste0("norm_method_bulk must be one of ", paste0(c("none", "TMM", "median_ratios", "TPM"), collapse = ",")))
+  if (!trans_method_sc %in% c("none", "log2", "sqrt", "vst")) stop(paste0("trans_method_sc must be one of ", paste0(c("none", "log2", "sqrt", "vst"), collapse = ",")))
+  if (!trans_method_bulk %in% c("none", "log2", "sqrt", "vst")) stop(paste0("trans_method_bulk must be one of ", paste0(c("none", "log2", "sqrt", "vst"), collapse = ",")))
   if (decon_method %in% c("CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR") && (!marker_strategy %in% c("all", "pos_fc", "top_50p_logFC", "top_50p_AveExpr"))) stop(paste0("marker_strategy must be one of ", paste0(c("all", "pos_fc", "top_50p_logFC", "top_50p_AveExpr"), collapse = ",")))
   if (decon_method == "scaden"){
     if (is.null(pythonpath) && reticulate::py_available()) {
@@ -175,7 +175,7 @@ scdecon <- function(
   if (length(intersect(colnames(ref), phenodata$cellid)) != length(union(colnames(ref), phenodata$cellid))) stop("column names of reference data do not match with cellid of the phenodata.")
   if ((!is.null(to_remove)) && (!to_remove %in% phenodata$celltype)) stop("to_remove not present in celltype of phenodata")
   if (decon_method %in% c("CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR")) decon_type <- "bulk" else decon_type <- "sc"
-  if (norm_method == "TPM") {
+  if (norm_method_bulk == "TPM") {
     if(is.null(gene_length)) {
       stop("norm_method is specified as TPM, but no gene_length is provided")
     } else if(ncol(gene_length) != 2) {
@@ -183,6 +183,7 @@ scdecon <- function(
     } else if(length(intersect(rownames(bulk), gene_length[[1]])) != length(union(rownames(bulk), gene_length[[1]]))){
       stop("gene names for gene_length are not consistent with row names of bulk")
     }
+    colnames(gene_length) <- c('GeneName', 'Length')
   }
   if(!length(intersect(rownames(ref), rownames(bulk)))) stop("no overlapping genes/rownames between ref and bulk")
   if((!is.null(marker_genes)) && (ncol(marker_genes) !=2)) stop("marker_genes need to be a data.frame with two columns (cell type, gene name)")
@@ -209,8 +210,6 @@ scdecon <- function(
       ref <- ref[, -cellstoremove]
       phenodata <- phenodata[-cellstoremove, ]
     }
-    keep <- which(rowSums(ref > 0) >= round(min_pct * ncol(ref)))
-    ref <- ref[keep, ]
     keep <- sapply(unique(phenodata$celltype), function(i) {
       ct_hits <- which(phenodata$celltype == i)
       size <- ceiling(min_pct_ct * length(ct_hits))
@@ -252,10 +251,10 @@ scdecon <- function(
     }
   if (decon_type == "bulk") {
     if(verbose) message(paste0("perform transformation and normalization."))
-    bulk <- transformation(bulk, trans_method_bulk)
-    avgexp_ct <- transformation(avgexp_ct, trans_method_sc)
     bulk <- scaling(bulk, norm_method_bulk, ffpe_artifacts = ffpe_artifacts, gene_length = gene_length)
     avgexp_ct <- scaling(avgexp_ct, norm_method_sc, ffpe_artifacts = FALSE, gene_length = gene_length)
+    bulk <- transformation(bulk, trans_method_bulk)
+    avgexp_ct <- transformation(avgexp_ct, trans_method_sc)
     if(is.null(marker_genes)) marker_distrib <- marker_strategies(markers, marker_strategy) else marker_distrib <- marker_genes
     if(!is.null(to_remove)){
       if(verbose) message(paste0("remove specified cell type: ", to_remove, "."))
@@ -267,11 +266,11 @@ scdecon <- function(
     if(verbose) message(paste0("perform deconvolution analysis using ", decon_method, "."))
     results <- deconvolution(bulk = bulk, ref = avgexp_ct, decon_method = decon_method, marker_distrib = marker_distrib, cibersortpath = cibersortpath, verbose = verbose)
   } else if (decon_type == "sc") {
-    if(verbose) message(paste0("perform transformation and normalization", norm_method,"."))
-    bulk <- transformation(bulk, trans_method_bulk)
-    ref <- transformation(ref, trans_method_sc)
+    if(verbose) message(paste0("perform transformation and normalization"))
     bulk <- scaling(bulk, norm_method_bulk, ffpe_artifacts = ffpe_artifacts, gene_length = gene_length)
     ref <- scaling(ref, norm_method_sc, ffpe_artifacts = FALSE, gene_length = gene_length)
+    bulk <- transformation(bulk, trans_method_bulk)
+    ref <- transformation(ref, trans_method_sc)
     if(!is.null(to_remove)){
       if(verbose) message(paste0("remove specified cell type: ", to_remove, "."))
       bulk <- bulk[,prop[to_remove,] != 0]

@@ -14,12 +14,10 @@ scdecon(
   min_pct_ct = 0.05,
   decon_method = c("scaden", "CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR", "MuSiC",
     "SCDC"),
-  norm_method_sc = c("none", "LogNormalize", "TMM", "median_ratios", "TPM",
-    "SCTransform", "scran", "scater", "Linnorm"),
-  norm_method_bulk = c("none", "LogNormalize", "TMM", "median_ratios", "TPM",
-    "SCTransform", "scran", "scater", "Linnorm"),
-  trans_method_sc = c("none", "log", "sqrt", "vst"),
-  trans_method_bulk = c("none", "log", "sqrt", "vst"),
+  norm_method_sc = c("none", "LogNormalize", "SCTransform", "scran", "scater", "Linnorm"),
+  norm_method_bulk = c("none", "TMM", "median_ratios", "TPM"),
+  trans_method_sc = c("none", "log2", "sqrt", "vst"),
+  trans_method_bulk = c("none", "log2", "sqrt", "vst"),
   gene_length = NULL,
   lfc_markers = log2(1.5),
   marker_strategy = c("all", "pos_fc", "top_50p_logFC", "top_50p_AveExpr"),
@@ -64,16 +62,16 @@ is NULL. Default to 0.05.}
 \item{decon_method}{character value specifying the deconvolution method to use. Has to be one of "scaden", "CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR",
 "MuSiC", "SCDC". See details for more information.}
 
-\item{norm_method_sc}{character value specifying the normalization method to use for both bulk & reference data. Has to be one of "none","LogNormalize", "TMM",
-"median_ratios", "TPM", "SCTransform", "scran", "scater", "Linnorm". See details for more information.}
+\item{norm_method_sc}{character value specifying the normalization method to use for reference data. Has to be one of "none","LogNormalize",
+"SCTransform", "scran", "scater", "Linnorm". See details for more information.}
 
-\item{norm_method_bulk}{character value specifying the normalization method to use for both bulk & reference data. Has to be one of "none","LogNormalize", "TMM",
-"median_ratios", "TPM", "SCTransform", "scran", "scater", "Linnorm". See details for more information.}
+\item{norm_method_bulk}{character value specifying the normalization method to use for bulk data. Has to be one of "none", "TMM",
+"median_ratios", "TPM". See details for more information.}
 
-\item{trans_method_sc}{character value specifying the transformation method to use for both bulk & reference data. Has to be one of "none", "log", "sqrt",
+\item{trans_method_sc}{character value specifying the transformation method to use for both bulk & reference data. Has to be one of "none", "log2", "sqrt",
 "vst". See details for more information.}
 
-\item{trans_method_bulk}{character value specifying the transformation method to use for both bulk & reference data. Has to be one of "none", "log", "sqrt",
+\item{trans_method_bulk}{character value specifying the transformation method to use for both bulk & reference data. Has to be one of "none", "log2", "sqrt",
 "vst". See details for more information.}
 
 \item{gene_length}{a data.frame with two columns. The first column represents gene names that match with provided bulk data. The second column
