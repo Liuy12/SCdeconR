@@ -1,0 +1,177 @@
+---
+title: "Reproducible_document"
+author: "Yuanhang Liu"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  rmdformats::readthedown:
+    self_contained: true
+    thumbnails: false
+    lightbox: false
+    gallery: false
+    highlight: tango
+    code_folding: show
+---
+
+# Load required libraries
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE,eval = FALSE)
+```
+
+```{r}
+library(SCdeconR)
+```
+
+# Download required files
+
+Data can be downloaded from zenodos [here](). The .rdata file contains several objects that will be used for simulation experiments, as well as evaluations on real data:
+
+1. ref: integrated scRNA-seq reference data for breast tissue
+2. phenodata: phenotype information (celltype, etc) for scRNA-seq reference data
+3. genes_to_remove: genes to be removed from the scRNA-seq reference data. Those genes include Montochondrial genes, ribosomal genes and protocol differential genes. 
+4. markers: marker genes for each cell type
+5. gene_length: gene length information
+6. bulkdata_bbd: bulkdata from BBD cohort
+7. caseviwer_anno: caseviewer annotation for BBD cohort
+8. bulkdata_gtex: bulkdata from gtex cohort
+9. gtex_anno: pathology annotation for gtex breast cohort
+
+
+```{r}
+load('inputdata.rds')
+```
+
+# Simulation studies
+
+## Baseline
+
+```{r}
+set.seed(1234)
+## use 50% of the reference data to generate artifial bulk samples
+## the remaining 50% is provided during inference
+idx <- sample(1:ncol(ref), ncol(ref)/2, replace = FALSE)
+bulk_sim <- bulk_generator(ref = ref[,idx], 
+                            phenodata = phenodata[idx,], 
+                            num_mixtures = 500, 
+                            num_mixtures_sprop = 10, 
+                            replace = FALSE)
+
+## perform deconvolution using different algorithms
+decon_res <- scdecon(bulk = bulk_sim, 
+                      ref = ref[,-idx], 
+                      phenodata = phenodata[-idx,], 
+                      filter_ref = TRUE, 
+                      genes_to_remove = genes_to_remove,
+                      marker_genes = markers,
+                     cibersortpath = "path/to/cibersort.R", # specify path to cibersor.R
+                      decon_method = "decon_method", # specify deconvolution method 
+                      norm_method_sc = "none", # specify norm method for reference data
+                      norm_method_bulk = "none", # specify norm method for bulk data
+                      trans_method_sc = "none", # specify trans method for reference data
+                      trans_method_bulk = "none", # specify trans method for bulk data
+                      gene_length = gene_length,
+                     pythonpath = "path/to/python", # specify path to python
+                     tmpdir = "outputdir", # specify tmp directory for scaden or scTAPE
+                     remove_tmpdir = FALSE,
+                      verbose = TRUE)
+```
+
+## Cell type removal 
+
+```{r}
+## perform deconvolution using different algorithms
+## need to specify to_remove parameter
+decon_res <- scdecon(bulk = bulk_sim, 
+                      ref = ref[,-idx], 
+                      phenodata = phenodata[-idx,], 
+                      filter_ref = TRUE, 
+                      genes_to_remove = genes_to_remove,
+                      marker_genes = markers,
+                     cibersortpath = "path/to/cibersort.R", # specify path to cibersor.R
+                      decon_method = "decon_method", # specify deconvolution method 
+                      norm_method_sc = "none", # specify norm method for reference data
+                      norm_method_bulk = "none", # specify norm method for bulk data
+                      trans_method_sc = "none", # specify trans method for reference data
+                      trans_method_bulk = "none", # specify trans method for bulk data
+                      gene_length = gene_length,
+                     pythonpath = "path/to/python", # specify path to python
+                     tmpdir = "outputdir", # specify tmp directory for scaden or scTAPE
+                     to_remove = "celltype_to_remove", # specify cell type to remove
+                     remove_tmpdir = FALSE,
+                      verbose = TRUE)
+```
+
+## FFPE
+
+```{r}
+## perform deconvolution using different algorithms
+## need to enable ffpe_artifacts parameter
+decon_res <- scdecon(bulk = bulk_sim, 
+                      ref = ref[,-idx], 
+                      phenodata = phenodata[-idx,], 
+                      filter_ref = TRUE, 
+                      genes_to_remove = genes_to_remove,
+                      marker_genes = markers,
+                     cibersortpath = "path/to/cibersort.R", # specify path to cibersor.R
+                      decon_method = "decon_method", # specify deconvolution method 
+                      norm_method_sc = "none", # specify norm method for reference data
+                      norm_method_bulk = "none", # specify norm method for bulk data
+                      trans_method_sc = "none", # specify trans method for reference data
+                      trans_method_bulk = "none", # specify trans method for bulk data
+                      gene_length = gene_length,
+                     pythonpath = "path/to/python", # specify path to python
+                     tmpdir = "outputdir", # specify tmp directory for scaden or scTAPE
+                     ffpe_artifacts = TRUE, # enable FFPE artifact
+                     remove_tmpdir = FALSE,
+                      verbose = TRUE)
+```
+
+# Benchmark using BBD FFPE samples
+
+```{r}
+## perform deconvolution using different algorithms
+## using all data from ref
+decon_res <- scdecon(bulk = bulk_data_bbd, 
+                      ref = ref, 
+                      phenodata = phenodata, 
+                      filter_ref = TRUE, 
+                      genes_to_remove = genes_to_remove,
+                      marker_genes = markers,
+                     min_pct_ct = 0.2, # specify minimum proportion of expressing cells
+                     cibersortpath = "path/to/cibersort.R", # specify path to cibersor.R
+                      decon_method = "decon_method", # specify deconvolution method 
+                      norm_method_sc = "LogNormalize", # specify norm method for reference data
+                      norm_method_bulk = "TPM", # specify norm method for bulk data
+                      trans_method_sc = "none", # specify trans method for reference data
+                      trans_method_bulk = "none", # specify trans method for bulk data
+                      gene_length = gene_length,
+                     pythonpath = "path/to/python", # specify path to python
+                     tmpdir = "outputdir", # specify tmp directory for scaden or scTAPE
+                     remove_tmpdir = FALSE,
+                      verbose = TRUE)
+```
+
+# Evaluation using GTex breast tissue cohort
+
+```{r}
+## perform deconvolution using scaden
+## using all data from ref
+decon_res <- scdecon(bulk = bulk_data_gtex, 
+                      ref = ref, 
+                      phenodata = phenodata, 
+                      filter_ref = TRUE, 
+                      genes_to_remove = genes_to_remove,
+                      min_pct_ct = 0.2, # specify minimum proportion of expressing cells
+                      marker_genes = markers,
+                     cibersortpath = "path/to/cibersort.R", # specify path to cibersor.R
+                      decon_method = "scaden", # specify deconvolution method 
+                      norm_method_sc = "LogNormalize", # specify norm method for reference data
+                      norm_method_bulk = "TPM", # specify norm method for bulk data
+                      trans_method_sc = "none", # specify trans method for reference data
+                      trans_method_bulk = "none", # specify trans method for bulk data
+                      gene_length = gene_length,
+                     pythonpath = "path/to/python", # specify path to python
+                     tmpdir = "outputdir", # specify tmp directory for scaden or scTAPE
+                     remove_tmpdir = FALSE,
+                      verbose = TRUE)
+```
