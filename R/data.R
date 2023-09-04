@@ -34,3 +34,14 @@
 #'
 #' @source
 #' \url{https://www.nature.com/articles/nn.4216}
+"refdata_brain"
+
+#' relationship between average tpm and ffpe artifacts based on a gam model
+#'
+#' The model was learnt using seven paired FFPE-FFzn samples from BBD patients
+#'
+#' @format
+#' a \code{\link[gamObject]{gamObject}} object
+#'
+"ffpemodel"
+
