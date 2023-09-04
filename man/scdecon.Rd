@@ -13,7 +13,7 @@ scdecon(
   genes_to_remove = NULL,
   min_pct_ct = 0.05,
   decon_method = c("scaden", "CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR", "MuSiC",
-    "SCDC"),
+    "SCDC", "scTAPE"),
   norm_method_sc = c("none", "LogNormalize", "SCTransform", "scran", "scater", "Linnorm"),
   norm_method_bulk = c("none", "TMM", "median_ratios", "TPM"),
   trans_method_sc = c("none", "log2", "sqrt", "vst"),
@@ -60,7 +60,7 @@ carry out differential analysis to identify marker genes for each cell type in r
 is NULL. Default to 0.05.}
 
 \item{decon_method}{character value specifying the deconvolution method to use. Has to be one of "scaden", "CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR",
-"MuSiC", "SCDC". See details for more information.}
+"MuSiC", "SCDC", "scTAPE". See details for more information.}
 
 \item{norm_method_sc}{character value specifying the normalization method to use for reference data. Has to be one of "none","LogNormalize",
 "SCTransform", "scran", "scater", "Linnorm". See details for more information.}
@@ -96,7 +96,7 @@ experiments in evaluating the effect of cell type removal from reference.}
 
 \item{pythonpath}{full path to python binary where scaden was installed with.}
 
-\item{tmpdir}{temporary processing directory for scaden.}
+\item{tmpdir}{temporary processing directory for scaden or scTAPE.}
 
 \item{remove_tmpdir}{a logical value indicating whether to remove tmpdir once scaden is completed. Default to TRUE.}
 
@@ -132,6 +132,7 @@ you need to request the source code from the authors & provide the path of CIBER
  \item{\href{https://cran.r-project.org/web/packages/MASS/index.html}{RLR}}{robust regression using an M estimator}
  \item{\href{https://github.com/xuranw/MuSiC}{MuSiC}}{multi-subject single-cell deconvolution}
  \item{\href{https://github.com/meichendong/SCDC}{SCDC}}{an ENSEMBLE method to integrate deconvolution results from different scRNA-seq datasets}
+ \item{\href{https://github.com/poseidonchan/TAPE}{scTAPE}}{Deep autoencoder based deconvolution}
 }
 
 norm_method should be one of the following:
