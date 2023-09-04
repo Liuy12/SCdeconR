@@ -22,7 +22,7 @@
 #' @param min_pct_ct a numeric value indicating the minimum required proportion of expressing cells per cell type for marker gene identification. Only applicable when marker_genes
 #' is NULL. Default to 0.05.
 #' @param decon_method character value specifying the deconvolution method to use. Has to be one of "scaden", "CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR",
-#' "MuSiC", "SCDC". See details for more information.
+#' "MuSiC", "SCDC", "scTAPE". See details for more information.
 #' @param norm_method_sc character value specifying the normalization method to use for reference data. Has to be one of "none","LogNormalize",
 #' "SCTransform", "scran", "scater", "Linnorm". See details for more information.
 #' @param norm_method_bulk character value specifying the normalization method to use for bulk data. Has to be one of "none", "TMM",
@@ -45,7 +45,7 @@
 #' experiments in evaluating the effect of cell type removal from reference.
 #' @param cibersortpath full path to CIBERSORT.R script.
 #' @param pythonpath full path to python binary where scaden was installed with.
-#' @param tmpdir temporary processing directory for scaden.
+#' @param tmpdir temporary processing directory for scaden or scTAPE.
 #' @param remove_tmpdir a logical value indicating whether to remove tmpdir once scaden is completed. Default to TRUE.
 #' @param seed random seed used for simulating FFPE artifacts. Only applicable when ffpe_artifacts is set to TRUE.
 #' @param nsamples number of artificial bulk samples to simulate for scaden. Default to 1000.
@@ -72,6 +72,7 @@
 #'  \item{\href{https://cran.r-project.org/web/packages/MASS/index.html}{RLR}}{robust regression using an M estimator}
 #'  \item{\href{https://github.com/xuranw/MuSiC}{MuSiC}}{multi-subject single-cell deconvolution}
 #'  \item{\href{https://github.com/meichendong/SCDC}{SCDC}}{an ENSEMBLE method to integrate deconvolution results from different scRNA-seq datasets}
+#'  \item{\href{https://github.com/poseidonchan/TAPE}{scTAPE}}{Deep autoencoder based deconvolution}
 #' }
 #'
 #' norm_method should be one of the following:
@@ -136,7 +137,7 @@ scdecon <- function(
     marker_genes = NULL,
     genes_to_remove = NULL,
     min_pct_ct = 0.05,
-    decon_method = c("scaden", "CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR", "MuSiC", "SCDC"),
+    decon_method = c("scaden", "CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR", "MuSiC", "SCDC", "scTAPE"),
     norm_method_sc = c("none","LogNormalize", "SCTransform", "scran", "scater", "Linnorm"),
     norm_method_bulk = c("none", "TMM", "median_ratios", "TPM"),
     trans_method_sc = c("none", "log2", "sqrt", "vst"),
@@ -154,19 +155,27 @@ scdecon <- function(
     seed = 1234,
     nsamples = 1000,
     verbose = FALSE) {
-  if (!decon_method %in% c("CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR", "MuSiC", "SCDC", "scaden")) stop(paste0("decon_method must be one of ", paste0(c("CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR", "MuSiC", "SCDC", "scaden"), collapse = ",")))
-  if (!norm_method_sc %in% c("none","LogNormalize", "SCTransform", "scran", "scater", "Linnorm")) stop(paste0("norm_method_sc must be one of ", paste0(c("none","LogNormalize", "SCTransform", "scran", "scater", "Linnorm"), collapse = ",")))
-  if (!norm_method_bulk %in% c("none", "TMM", "median_ratios", "TPM")) stop(paste0("norm_method_bulk must be one of ", paste0(c("none", "TMM", "median_ratios", "TPM"), collapse = ",")))
-  if (!trans_method_sc %in% c("none", "log2", "sqrt", "vst")) stop(paste0("trans_method_sc must be one of ", paste0(c("none", "log2", "sqrt", "vst"), collapse = ",")))
-  if (!trans_method_bulk %in% c("none", "log2", "sqrt", "vst")) stop(paste0("trans_method_bulk must be one of ", paste0(c("none", "log2", "sqrt", "vst"), collapse = ",")))
-  if (decon_method %in% c("CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR") && (!marker_strategy %in% c("all", "pos_fc", "top_50p_logFC", "top_50p_AveExpr"))) stop(paste0("marker_strategy must be one of ", paste0(c("all", "pos_fc", "top_50p_logFC", "top_50p_AveExpr"), collapse = ",")))
-  if (decon_method == "scaden"){
+  decon_method_all <- c("CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR", "MuSiC", "SCDC", "scaden", "scTAPE")
+  decon_method_sc_all <- c("MuSiC", "SCDC", "scaden", "scTAPE")
+  decon_method_bulk_all <- c("CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR")
+  norm_method_sc_all <- c("none","LogNormalize", "SCTransform", "scran", "scater", "Linnorm")
+  norm_method_bulk_all <- c("none", "TMM", "median_ratios", "TPM")
+  trans_method_all <- c("none", "log2", "sqrt", "vst")
+  marker_strategy_all <- c("all", "pos_fc", "top_50p_logFC", "top_50p_AveExpr")
+  if (!decon_method %in% decon_method_all) stop(paste0("decon_method must be one of ", decon_method_all, collapse = ","))
+  if (!norm_method_sc %in% norm_method_sc_all) stop(paste0("norm_method_sc must be one of ", paste0(norm_method_sc_all, collapse = ",")))
+  if (!norm_method_bulk %in% norm_method_bulk_all) stop(paste0("norm_method_bulk must be one of ", paste0(norm_method_bulk_all, collapse = ",")))
+  if (!trans_method_sc %in% trans_method_all) stop(paste0("trans_method_sc must be one of ", paste0(trans_method_all, collapse = ",")))
+  if (!trans_method_bulk %in% trans_method_all) stop(paste0("trans_method_bulk must be one of ", paste0(trans_method_all, collapse = ",")))
+  if (decon_method %in% decon_method_bulk_all && (!marker_strategy %in% marker_strategy_all)) stop(paste0("marker_strategy must be one of ", paste0(marker_strategy_all, collapse = ",")))
+  if (decon_method == "scaden" | decon_method == "scTAPE"){
     if (is.null(pythonpath) && reticulate::py_available()) {
       warning(paste0("pythonpath not specified, will use the python found here: ", reticulate::py_config()$python))
       pythonpath <- reticulate::py_config()$python
     } else if(is.null(pythonpath) && (!reticulate::py_available())) stop("pythonpath not specified, and python cannot be found via py_available()")
     reticulate::use_python(pythonpath)
     if(!reticulate::py_module_available("scaden")) stop("scaden not installed. You can install scaden via pip or conda. See installation page for details")
+    if(!reticulate::py_module_available("TAPE")) stop("scTAPE not installed. You can install scTAPE via pip or conda. See installation page for details")
   }
   if( decon_method == "CIBERSORT" && (is.null(cibersortpath) || (!file.exists(cibersortpath)))) stop("cibersortpath not provided.")
   if (ncol(phenodata) < 3) stop("phenodata should contain at least the first three columns: cellid, celltype and subjectid.")
@@ -174,7 +183,7 @@ scdecon <- function(
   if (length(unique(phenodata$cellid)) != nrow(phenodata)) stop("values of cellid in phenodata not unique.")
   if (length(intersect(colnames(ref), phenodata$cellid)) != length(union(colnames(ref), phenodata$cellid))) stop("column names of reference data do not match with cellid of the phenodata.")
   if ((!is.null(to_remove)) && (!to_remove %in% phenodata$celltype)) stop("to_remove not present in celltype of phenodata")
-  if (decon_method %in% c("CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR")) decon_type <- "bulk" else decon_type <- "sc"
+  if (decon_method %in% decon_method_bulk_all) decon_type <- "bulk" else decon_type <- "sc"
   if (norm_method_bulk == "TPM") {
     if(is.null(gene_length)) {
       stop("norm_method is specified as TPM, but no gene_length is provided")
@@ -321,7 +330,7 @@ prop_barplot <- function(prop, sort = TRUE, interactive = FALSE){
 
 deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, pythonpath = NULL, cibersortpath = NULL, tmpdir = NULL, remove_tmpdir = TRUE, verbose = FALSE, nsamples = 1000) {
   bulk_methods <- c("CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR")
-  sc_methods <- c("MuSiC", "SCDC", "scaden")
+  sc_methods <- c("MuSiC", "SCDC", "scaden", "scTAPE")
 
   ########## Using marker information for bulk_methods
   if (decon_method %in% bulk_methods) {
@@ -427,6 +436,26 @@ deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, py
     system(paste0("scaden train processed.h5ad --steps 5000 --model_dir model"), ignore.stdout = !verbose, ignore.stderr = !verbose)
     system(paste0("scaden predict --model_dir model decon_bulk_data.txt"), ignore.stdout = !verbose, ignore.stderr = !verbose)
     results <- t(read.delim("./scaden_predictions.txt", header = TRUE, row.names = 1))
+    fiterror <- NA
+    if(remove_tmpdir) system(paste0("rm -rf ", tmpdir))
+  } else if(decon_method == "scTAPE"){
+    if(is.null(tmpdir)) {
+      warning("tmpdir not supplied. Creating tmpdir in current working directory.")
+      tmpdir <- paste0(getwd(), "/tmpdir/")
+      dir.create(tmpdir)
+    } else if(!dir.exists(tmpdir)) stop("tmpdir does not exist")
+    else if(length(list.files(tmpdir)) > 0) stop("tmpdir exists, but is not empty.")
+    cwd <- getwd()
+    on.exit(setwd(cwd))
+    setwd(tmpdir)
+    sc_data <- t(ref)
+    sc_data <- cbind(data.frame(Celltype = phenodata$celltype), sc_data)
+    data.table::fwrite(sc_data, paste0(tmpdir, "/sc_data.txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+    write.table(t(bulk),paste0(tmpdir,"/bulk_data.txt"), sep = "\t", row.names = TRUE, col.names = NA, quote = F)
+    tape_script <- paste0(find.package("SCdeconR"), "/script/tape_deconvolution.py")
+    #system(paste0("cp ", tape_script, " ", tmpdir))
+    source_python(tape_script)
+    results <- t(tape_deconvolution(sc_data = paste0(tmpdir, "/sc_data.txt"), bulk_data = paste0(tmpdir,"/bulk_data.txt")))
     fiterror <- NA
     if(remove_tmpdir) system(paste0("rm -rf ", tmpdir))
   }
