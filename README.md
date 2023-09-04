@@ -83,4 +83,4 @@ library(SCdeconR)
 
 See [here](https://liuy12.github.io/SCdeconR/) for detailed documentation and tutorials. 
 
-
+See [here](https://htmlpreview.github.io/?https://github.com/Liuy12/SCdeconR/blob/master/inst/reprod_doc/Reproducible_document.html) for a document to reproduce the results from the study.
