@@ -49,6 +49,8 @@
 #' @param remove_tmpdir a logical value indicating whether to remove tmpdir once scaden is completed. Default to TRUE.
 #' @param seed random seed used for simulating FFPE artifacts. Only applicable when ffpe_artifacts is set to TRUE.
 #' @param nsamples number of artificial bulk samples to simulate for scaden. Default to 1000.
+#' @param return_value_only return a list of values only without performing deconvolution. This could be helpful in
+#' cases where the user want to apply their own deconvolution algorithms. Default to FALSE.
 #' @param verbose a logical value indicating whether to print messages. Default to FALSE.
 #'
 #' @return a list containing two or four elements.
@@ -154,6 +156,7 @@ scdecon <- function(
     remove_tmpdir = TRUE,
     seed = 1234,
     nsamples = 1000,
+    return_value_only = FALSE,
     verbose = FALSE) {
   decon_method_all <- c("CIBERSORT", "OLS", "nnls", "FARDEEP", "RLR", "MuSiC", "SCDC", "scaden", "scTAPE")
   decon_method_sc_all <- c("MuSiC", "SCDC", "scaden", "scTAPE")
@@ -272,6 +275,10 @@ scdecon <- function(
       prop <- prop[!rownames(prop) %in% to_remove, colnames(bulk)]
       marker_distrib <- marker_distrib[marker_distrib$CT %in% rownames(prop) & (marker_distrib$CT != to_remove),]
     }
+    if(return_value_only){
+      message("return values without performing deconvlution")
+      return(list(bulk = bulk, ref = avgexp_ct, marker_distrib = marker_distrib))
+    }
     if(verbose) message(paste0("perform deconvolution analysis using ", decon_method, "."))
     results <- deconvolution(bulk = bulk, ref = avgexp_ct, decon_method = decon_method, marker_distrib = marker_distrib, cibersortpath = cibersortpath, verbose = verbose)
   } else if (decon_type == "sc") {
@@ -286,6 +293,10 @@ scdecon <- function(
       ref <- ref[,phenodata$celltype != to_remove]
       prop <- prop[!rownames(prop) %in% to_remove, colnames(bulk)]
       phenodata <- phenodata[phenodata$celltype != to_remove,]
+    }
+    if(return_value_only){
+      message("return values without performing deconvlution")
+      return(list(bulk = bulk, ref = ref, phenodata = phenodata))
     }
     if(verbose) message(paste0("perform deconvolution analysis using ", decon_method, "."))
     results <- deconvolution(bulk = bulk, ref = ref, decon_method = decon_method, phenodata = phenodata, pythonpath = pythonpath, tmpdir = tmpdir, remove_tmpdir = remove_tmpdir, verbose = verbose, nsamples = nsamples)
