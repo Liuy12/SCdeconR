@@ -1,3 +1,3 @@
-# SCdeconR 0.99.0
+# SCdeconR 1.0.0
 
-* Pre-release version
+* Release version

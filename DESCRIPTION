@@ -1,7 +1,7 @@
 Package: SCdeconR
 Type: Package
 Title: Deconvolution of bulk RNA-seq data using single-cell RNA-seq data as reference
-Version: 0.99.0
+Version: 1.0.0
 Authors@R: person("Yuanhang", "Liu", email = "liu.yuanhang@mayo.edu", role = c("aut", "cre"))
 Description: Streamlined workflow from deconvolution of bulk RNA-seq data to downstream differential expression and gene-set enrichment analysis. Provide various visualization functions. 
 License: GPL (>= 3)
