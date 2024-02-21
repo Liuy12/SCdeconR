@@ -30,6 +30,7 @@ scdecon(
   remove_tmpdir = TRUE,
   seed = 1234,
   nsamples = 1000,
+  return_value_only = FALSE,
   verbose = FALSE
 )
 }
@@ -104,6 +105,9 @@ experiments in evaluating the effect of cell type removal from reference.}
 
 \item{nsamples}{number of artificial bulk samples to simulate for scaden. Default to 1000.}
 
+\item{return_value_only}{return a list of values only without performing deconvolution. This could be helpful in
+cases where the user want to apply their own deconvolution algorithms. Default to FALSE.}
+
 \item{verbose}{a logical value indicating whether to print messages. Default to FALSE.}
 }
 \value{
@@ -142,7 +146,7 @@ norm_method should be one of the following:
  \item{TMM}{TMM method from \code{\link[edgeR]{calcNormFactors}} function from edgeR.}
  \item{median_ratios}{median ratio method from \code{\link[DESeq2]{estimateSizeFactors,DESeqDataSet-method}} function from DESeq2.}
  \item{TPM}{Transcript per million. TPM has to be chosen if ffpe_artifacts is set to TRUE.}
- \item{SCTransform}{\code{\link[Seurat]{SCTransfrom}} method from Seurat.}
+ \item{SCTransform}{\code{\link[Seurat]{SCTransform}} method from Seurat.}
  \item{scran}{\code{\link[scran]{computeSumFactors}} method from scran.}
  \item{scater}{\code{\link[scater]{librarySizeFactors}} method from scater.}
  \item{Linnorm}{\code{\link[Linnorm]{Linnorm}} method from Linnorm.}

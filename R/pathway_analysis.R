@@ -4,6 +4,7 @@
 #' Reformat, read & write .gmt file.
 #'
 #' @param gmtfile path to a gene set definition file in .gmt format.
+#' @param gmt a gmt object returned by \code{read_gmt}.
 #' @param outputfile full path including file name to export reformatted .gmt file.
 #' @param replace a logical value indicating whether to replace the output file if it already exists. Default to FALSE.
 #'
@@ -74,8 +75,8 @@ prepare_rnk <- function(teststats, outputfile, replace = FALSE){
 #' @param result_names a vector of length 2 indicating the names of the two GSEA results. If NULL, names will be set to c("results1", "results2")
 #' @param nes_cutoff normalized enrichment score cutoff to identify enriched gene-sets.
 #' @param pval_cutoff p value cutoff to identify enriched gene-sets.
-#' @param pvalflag a logical value indicating whether to use adjusted p value in selecting enriched gene-sets. Default to TRUE. 
-#' @param interactive a logical value indicating whether to generate an interactive plot. Default to FALSE. 
+#' @param pvalflag a logical value indicating whether to use adjusted p value in selecting enriched gene-sets. Default to TRUE.
+#' @param interactive a logical value indicating whether to generate an interactive plot. Default to FALSE.
 #'
 #' @export
 #'
@@ -137,8 +138,8 @@ comparegsea_scatter <- function(
 #' @param gseares_path path to GSEA output.
 #' @param pos_sel a character vector of upregulated gene-set names.
 #' @param neg_sel a character vector of downregulated gene-set names.
-#' @param pvalflag a logical value indicating whether to use adjusted p value in the plot. Default to TRUE. 
-#' @param interactive a logical value indicating whether to generate an interactive plot. Default to FALSE. 
+#' @param pvalflag a logical value indicating whether to use adjusted p value in the plot. Default to TRUE.
+#' @param interactive a logical value indicating whether to generate an interactive plot. Default to FALSE.
 #'
 #' @export
 #'

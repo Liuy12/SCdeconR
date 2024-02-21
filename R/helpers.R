@@ -138,7 +138,7 @@ transformation <- function(matrix, option) {
 #' @param matrix a matrix-like objector of gene expression values with rows representing genes, columns representing samples or cells
 #' @param option character value specifying the normalization method to use. Has to be one of "none", "LogNormalize", "TMM", "median_ratios", "TPM",
 #' "SCTransform", "scran", "scater", "Linnorm".
-#' @param genelength a data.frame with two columns. The first column represents gene names that match with provided bulk data. The second column
+#' @param gene_length a data.frame with two columns. The first column represents gene names that match with provided bulk data. The second column
 #' represents length of each gene. Only applicable when norm_method is selected as "TPM"
 #' @param seed random seed used for simulating FFPE artifacts. Only applicable when ffpe_artifacts is set to TRUE.
 #' @param ffpe_artifacts logical value indicating whether to add simulated ffpe artifacts in the bulk data. Only applicable to simulation experiments in
@@ -185,9 +185,6 @@ scaling <- function(matrix, option, gene_length = NULL, seed = 1234, ffpe_artifa
     }
     matrix <- counts(dds, normalized = TRUE)
   } else if (option == "TPM") {
-    require(edgeR)
-    require(dplyr)
-    require(mgcv)
     matrix <- matrix[rownames(matrix) %in% gene_length$GeneName, ]
     matrix <- matrix %>%
       DGEList() %>%
@@ -227,7 +224,8 @@ scaling <- function(matrix, option, gene_length = NULL, seed = 1234, ffpe_artifa
     size_factors <- scater::librarySizeFactors(matrix)
     matrix <- scater::normalizeCounts(as.matrix(matrix), size_factors = size_factors, return_log = FALSE)
   } else if (option == "Linnorm") { # It is not compatible with log transformed datasets.
-    matrix <- expm1(Linnorm::Linnorm(as.matrix(matrix))) # Main function contains log1p(datamatrix)
+    ## use Linnorm function from Linnorm package
+    matrix <- expm1(Linnorm(as.matrix(matrix))) # Main function contains log1p(datamatrix)
   }
   return(matrix)
 }

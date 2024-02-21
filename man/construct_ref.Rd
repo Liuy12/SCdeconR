@@ -55,7 +55,7 @@ the results will be saved in "seurat_clusters" metadata in the output Seurat obj
 
 \item{verbose}{logical value indicating whether to print messages.}
 
-\item{...}{additional parameters passed to \code{\link[Seurat]{SCTransfrom}}.}
+\item{...}{additional parameters passed to \code{\link[Seurat]{SCTransform}}.}
 }
 \value{
 a \code{\link[Seurat]{Seurat-class}} object.

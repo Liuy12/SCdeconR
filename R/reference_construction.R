@@ -25,7 +25,7 @@
 #' the results will be saved in "seurat_clusters" metadata in the output Seurat object.
 #' @param resolution numeric value specifying resolution to use when cluster is set to TRUE.
 #' @param verbose logical value indicating whether to print messages.
-#' @param ... additional parameters passed to \code{\link[Seurat]{SCTransfrom}}.
+#' @param ... additional parameters passed to \code{\link[Seurat]{SCTransform}}.
 #'
 #' @return a \code{\link[Seurat]{Seurat-class}} object.
 #'
@@ -156,7 +156,7 @@ construct_ref <- function(
 #' out MT percentage ("percent_mt") & cell cycle effects ("phase")
 #' @param id a character value specifying project or sample id. Only used for printing purposes.
 #' @param verbose logical value indicating whether to print messages.
-#' @param ... additional parameters passed to \code{\link[Seurat]{SCTransfrom}}.
+#' @param ... additional parameters passed to \code{\link[Seurat]{SCTransform}}.
 #'
 #' @return a \code{\link[Seurat]{Seurat-class}} object.
 #'

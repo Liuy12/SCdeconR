@@ -18,6 +18,8 @@ write_gmt(gmt, outputfile, replace = FALSE)
 \item{outputfile}{full path including file name to export reformatted .gmt file.}
 
 \item{replace}{a logical value indicating whether to replace the output file if it already exists. Default to FALSE.}
+
+\item{gmt}{a gmt object returned by \code{read_gmt}.}
 }
 \value{
 for read_gmt, returns a list object with length equal to the total number of gene sets within the .gmt file. Each list contains three elements:

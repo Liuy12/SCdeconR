@@ -237,10 +237,11 @@ celltype_expression <- function(bulk, ref, phenodata, prop, ...) {
     phenodata <- phenodata[match(colnames(ref), phenodata$cellid), ]
     celltypes <- factor(phenodata[, "celltype"])
     names(celltypes) <- phenodata$cellid
-    reference <- spacexr::Reference(ref, celltypes, require_int = FALSE, min_UMI = 0)
-    bulk_fake_spatial <- spacexr::SpatialRNA(counts = bulk, use_fake_coords = TRUE, require_int = FALSE)
-    rctd_obj <- spacexr::create.RCTD(bulk_fake_spatial, reference, fc_cutoff = 0, ...)
-    rctd_obj <- spacexr::fitBulk(rctd_obj)
+    ### use functions from spacexr package
+    reference <- Reference(ref, celltypes, require_int = FALSE, min_UMI = 0)
+    bulk_fake_spatial <- SpatialRNA(counts = bulk, use_fake_coords = TRUE, require_int = FALSE)
+    rctd_obj <- create.RCTD(bulk_fake_spatial, reference, fc_cutoff = 0, ...)
+    rctd_obj <- fitBulk(rctd_obj)
     celltypes <- rctd_obj@cell_type_info$info[[2]]
     ct_renorm <- rctd_obj@cell_type_info$renorm[[1]]
     ct_mat <- lapply(1:length(celltypes), function(i) {

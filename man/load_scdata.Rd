@@ -34,7 +34,7 @@ out MT percentage ("percent_mt") & cell cycle effects ("phase")}
 
 \item{verbose}{logical value indicating whether to print messages.}
 
-\item{...}{additional parameters passed to \code{\link[Seurat]{SCTransfrom}}.}
+\item{...}{additional parameters passed to \code{\link[Seurat]{SCTransform}}.}
 }
 \value{
 a \code{\link[Seurat]{Seurat-class}} object.

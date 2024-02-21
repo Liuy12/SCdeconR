@@ -27,9 +27,7 @@ Then, we will simulate artificial bulk RNA-seq samples using the constructed ref
 
 We then use `OLS` method to deconvolute the bulk samples and predict cell-type proportions for each sample. Differential expression and pathway enrichment analysis will then be performed to identify perturbed genes and pathways. We will also be examining the effect of correcting for cell-type proportion differences on those downstream analysis.  
 
-# Load required libraries and construct integrated reference data
-
-You can also skip this section, and directly load the integrated reference data via `data(refdata)`
+# Load required libraries 
 
 ```{r}
 library(SCdeconR)
@@ -38,7 +36,13 @@ library(plotly)
 library(doFuture)
 registerDoFuture()
 plan("multisession", workers = 4)
+```
 
+# Construct integrated reference data
+
+You can also skip this section, and directly load the integrated reference data via `data(refdata)`
+
+```{r, eval=FALSE}
 # path to reference datasets
 ref_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample1"),
               paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample2"))
@@ -57,6 +61,10 @@ refdata <- construct_ref(ref_list = ref_list,
               vars_to_regress = "percent_mt", verbose = FALSE
               )
 refdata
+```
+
+```{r, include=FALSE}
+data("refdata")
 ```
 
 Here we set `nfeature_rna` to be 50 due to limited number of cells we included in the data. You might want to apply a higher cutoff for your own reference data. 
@@ -147,8 +155,10 @@ decon_res <- scdecon(bulk = bulk_sim[[1]],
                      phenodata = phenodata,
                      filter_ref = TRUE,
                      decon_method = "OLS",
-                     norm_method = "none",
-                     trans_method = "none",
+                     norm_method_sc = "none",
+                     norm_method_bulk = "none",
+                     trans_method_sc = "none",
+                     trans_method_bulk = "none",
                      marker_strategy = "all")
 
 ```

@@ -84,7 +84,7 @@
 #'  \item{TMM}{TMM method from \code{\link[edgeR]{calcNormFactors}} function from edgeR.}
 #'  \item{median_ratios}{median ratio method from \code{\link[DESeq2]{estimateSizeFactors,DESeqDataSet-method}} function from DESeq2.}
 #'  \item{TPM}{Transcript per million. TPM has to be chosen if ffpe_artifacts is set to TRUE.}
-#'  \item{SCTransform}{\code{\link[Seurat]{SCTransfrom}} method from Seurat.}
+#'  \item{SCTransform}{\code{\link[Seurat]{SCTransform}} method from Seurat.}
 #'  \item{scran}{\code{\link[scran]{computeSumFactors}} method from scran.}
 #'  \item{scater}{\code{\link[scater]{librarySizeFactors}} method from scater.}
 #'  \item{Linnorm}{\code{\link[Linnorm]{Linnorm}} method from Linnorm.}
@@ -393,7 +393,8 @@ deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, py
       sqrt((mean((k - bulk[, i])^2)))
     }))
   } else if (decon_method == "FARDEEP") {
-    results <- t(FARDEEP::fardeep(ref, bulk, nn = TRUE, intercept = TRUE, permn = 10, QN = FALSE)$abs.beta)
+    ## call fardeep from FARDEEP
+    results <- t(fardeep(ref, bulk, nn = TRUE, intercept = TRUE, permn = 10, QN = FALSE)$abs.beta)
     results <- apply(results, 2, function(x) x / sum(x)) # explicit STO constraint
     fiterror <- data.frame(sample = colnames(results), RMSE = sapply(1:ncol(bulk), function(i) {
       u <- sweep(ref, MARGIN = 2, results[, i], "*")
@@ -422,7 +423,8 @@ deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, py
       sqrt((mean((k - bulk[, i])^2)))
     }))
   } else if (decon_method == "SCDC") {
-    results <- t(SCDC::SCDC_prop(bulk.eset = bulk_eset, sc.eset = ref_eset, ct.varname = "celltype", sample = "subjectid", ct.sub = unique(as.character(phenodata$celltype)), iter.max = 200)$prop.est.mvw)
+    ### use SCDC_prop from SCDC package
+    results <- t(SCDC_prop(bulk.eset = bulk_eset, sc.eset = ref_eset, ct.varname = "celltype", sample = "subjectid", ct.sub = unique(as.character(phenodata$celltype)), iter.max = 200)$prop.est.mvw)
     fiterror <- data.frame(sample = colnames(results), RMSE = sapply(1:ncol(bulk), function(i) {
       u <- sweep(ref, MARGIN = 2, results[, i], "*")
       k <- apply(u, 1, sum)
