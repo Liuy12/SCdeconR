@@ -131,9 +131,9 @@ you need to firstly install scaden via \code{pip} or \code{conda}, the provide t
  \item{CIBERSORT}{a marker gene based support vectors regression approach. CIBERSOR does not allow redistribution. To use CIBERSORT,
 you need to request the source code from the authors & provide the path of CIBERSORT.R script to \code{cibersortpath} option.}
  \item{OLS}{ordinary least squares.}
- \item{\href{https://cran.r-project.org/web/packages/nnls/index.html}{nnls}}{non-negative least squares.}
- \item{\href{https://cran.r-project.org/web/packages/FARDEEP/index.html}{FARDEEP}}{robust regression using least trimmed squares}
- \item{\href{https://cran.r-project.org/web/packages/MASS/index.html}{RLR}}{robust regression using an M estimator}
+ \item{\href{https://CRAN.R-project.org/package=nnls}{nnls}}{non-negative least squares.}
+ \item{\href{https://CRAN.R-project.org/package=FARDEEP}{FARDEEP}}{robust regression using least trimmed squares}
+ \item{\href{https://CRAN.R-project.org/package=MASS}{RLR}}{robust regression using an M estimator}
  \item{\href{https://github.com/xuranw/MuSiC}{MuSiC}}{multi-subject single-cell deconvolution}
  \item{\href{https://github.com/meichendong/SCDC}{SCDC}}{an ENSEMBLE method to integrate deconvolution results from different scRNA-seq datasets}
  \item{\href{https://github.com/poseidonchan/TAPE}{scTAPE}}{Deep autoencoder based deconvolution}
@@ -149,7 +149,7 @@ norm_method should be one of the following:
  \item{SCTransform}{\code{\link[Seurat]{SCTransform}} method from Seurat.}
  \item{scran}{\code{\link[scran]{computeSumFactors}} method from scran.}
  \item{scater}{\code{\link[scater]{librarySizeFactors}} method from scater.}
- \item{Linnorm}{\code{\link[Linnorm]{Linnorm}} method from Linnorm.}
+ \item{Linnorm}{\code{Linnorm} method from Linnorm.}
 }
 
 trans_method should be one of the following:

@@ -197,11 +197,11 @@ scaling <- function(matrix, option, gene_length = NULL, seed = 1234, ffpe_artifa
       ### convert to log2 scale
       matrix <- log2(matrix + 0.1)
       ### load GAM fitted model
-      model <- data(ffpemodel)
+      model <- data("ffpemodel")
       diffmat <- matrix(
         sample(c(-1, 1), nrow(matrix) * ncol(matrix), replace = TRUE, prob = c(0.5, 0.5)) *
           rnorm(1:length(c(matrix)),
-            mean = predict(model, newdata = data.frame(avgtpm = c(matrix))), sd = 0.5
+            mean = predict.gam(model, newdata = data.frame(avgtpm = c(matrix))), sd = 0.5
           ),
         nrow = nrow(matrix), ncol = ncol(matrix), byrow = FALSE
       )

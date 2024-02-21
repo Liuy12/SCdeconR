@@ -251,7 +251,7 @@ Prepare `.rnk` file.
 prepare_rnk(teststats = deres[[2]], outputfile = "/path/to/rnk/file/")
 ```
 
-Use the reformatted `.gmt` file and `.rnk` file to run GSEA. You can download GSEA [here](http://www.gsea-msigdb.org/gsea/downloads.jsp). Do not use the R version implementation (our visualization functions are not compatible with GSEA R implementation). 
+Use the reformatted `.gmt` file and `.rnk` file to run GSEA. You can download GSEA [here](https://www.gsea-msigdb.org/gsea/downloads.jsp). Do not use the R version implementation (our visualization functions are not compatible with GSEA R implementation). 
 
 We included GSEA output using differential genes w/wo adjusting for cell-type differences. We can now compare the differences between those results. 
 

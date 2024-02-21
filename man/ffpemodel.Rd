@@ -5,7 +5,7 @@
 \alias{ffpemodel}
 \title{relationship between average tpm and ffpe artifacts based on a gam model}
 \format{
-a \code{\link[gamObject]{gamObject}} object
+a \code{gam Object} from \code{mgcv}
 }
 \usage{
 ffpemodel

@@ -20,7 +20,7 @@ columns as:
 
 \item{prop}{a matrix-like object of cell proportion values with rows representing cell types, columns representing samples.}
 
-\item{...}{additional parameters passed to \code{\link[spacexr]{create.RCTD}}.}
+\item{...}{additional parameters passed to \code{create.RCTD} from \code{spacexr}.}
 }
 \value{
 a list with length equal to number of unique cell types in phenodata. Each element in the list represents gene expression matrix for each unique cell type.

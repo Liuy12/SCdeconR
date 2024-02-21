@@ -218,7 +218,7 @@ comparedeg_scatter <- function(
 #'  \item cell types
 #' }
 #' @param prop a matrix-like object of cell proportion values with rows representing cell types, columns representing samples.
-#' @param ... additional parameters passed to \code{\link[spacexr]{create.RCTD}}.
+#' @param ... additional parameters passed to \code{create.RCTD} from \code{spacexr}.
 #'
 #' @return a list with length equal to number of unique cell types in phenodata. Each element in the list represents gene expression matrix for each unique cell type.
 #'

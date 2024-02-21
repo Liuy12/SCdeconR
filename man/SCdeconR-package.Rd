@@ -4,7 +4,7 @@
 \name{SCdeconR-package}
 \alias{SCdeconR}
 \alias{SCdeconR-package}
-\title{SCdeconR: Deconvolution of bulk RNA-seq data using single-cell RNA-seq data as reference}
+\title{SCdeconR: Deconvolution of Bulk RNA-Seq Data using Single-Cell RNA-Seq Data as Reference}
 \description{
 Streamlined workflow from deconvolution of bulk RNA-seq data to downstream differential expression and gene-set enrichment analysis. Provide various visualization functions.
 }

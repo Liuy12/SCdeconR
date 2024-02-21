@@ -1,6 +1,6 @@
 Package: SCdeconR
 Type: Package
-Title: Deconvolution of bulk RNA-seq data using single-cell RNA-seq data as reference
+Title: Deconvolution of Bulk RNA-Seq Data using Single-Cell RNA-Seq Data as Reference
 Version: 1.0.0
 Authors@R: person("Yuanhang", "Liu", email = "liu.yuanhang@mayo.edu", role = c("aut", "cre"))
 Description: Streamlined workflow from deconvolution of bulk RNA-seq data to downstream differential expression and gene-set enrichment analysis. Provide various visualization functions. 
@@ -10,7 +10,6 @@ URL: https://github.com/Liuy12/SCdeconR/,
 Encoding: UTF-8
 LazyData: true
 LazyDataCompression: gzip
-BuildVignettes: false
 RoxygenNote: 7.3.1
 Imports: 
     data.table,
@@ -21,9 +20,9 @@ Imports:
     NMF,
     reshape2,
     Biobase,
-    FARDEEP,
-    Linnorm,
-    mgcv
+    mgcv,
+    grDevices,
+    glmGamPoi
 Suggests: 
     DESeq2,
     knitr,
@@ -43,7 +42,6 @@ Depends:
     edgeR,
     foreach,
     ggplot2,
-    glmGamPoi,
     R (>= 2.10),
     Seurat
 VignetteBuilder: knitr
