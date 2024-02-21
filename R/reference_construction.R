@@ -47,8 +47,11 @@
 #' ## random subset of two scRNA-seq datasets for breast tissue
 #' ref_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample1"),
 #'               paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample2"))
-#' phenodata_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/phenodata_sample1.txt"),
-#'                     paste0(system.file("extdata", package = "SCdeconR"), "/refdata/phenodata_sample2.txt"))
+#' phenopath1 <- paste0(system.file("extdata", package = "SCdeconR"),
+#' "/refdata/phenodata_sample1.txt")
+#' phenopath2 <- paste0(system.file("extdata", package = "SCdeconR"),
+#' "/refdata/phenodata_sample2.txt")
+#' phenodata_list <- c(phenopath1,phenopath2)
 #'
 #' ## Register backend for parallel processing
 #' registerDoFuture()
@@ -152,6 +155,7 @@ construct_ref <- function(
 #' @param meta_info a data.frame with rows representing cells, columns representing cell attributes.
 #' @param nfeature_rna minimum # of features with non-zero UMIs. Cells with # of features lower than nfeature_rna will be removed. Default to 200.
 #' @param percent_mt maximum percentage of mitochondria (MT) mapped UMIs. Cells with MT percentage higher than percent_mt will be removed. Default to 40.
+#' @param cc.genes cell-cycle genes curated by Seurat. Can be loaded via \code{data(cc.genes)}
 #' @param vars_to_regress a list of character values indicating the variables to regress for SCTransform normalization step. Default is to regress
 #' out MT percentage ("percent_mt") & cell cycle effects ("phase")
 #' @param id a character value specifying project or sample id. Only used for printing purposes.
@@ -167,10 +171,14 @@ construct_ref <- function(
 #'
 #' @examples
 #' \dontrun{
-#' ref_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample1"),
-#'               paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample2"))
-#' phenodata_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/phenodata_sample1.txt"),
-#'                     paste0(system.file("extdata", package = "SCdeconR"), "/refdata/phenodata_sample2.txt"))
+#' samplepath1 <- paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample1")
+#' samplepath2 <- paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample2")
+#' ref_list <- c(samplepath1, samplepath2)
+#' phenopath1 <- paste0(system.file("extdata", package = "SCdeconR"),
+#' "/refdata/phenodata_sample1.txt")
+#' phenopath2 <- paste0(system.file("extdata", package = "SCdeconR"),
+#' "/refdata/phenodata_sample2.txt")
+#' phenodata_list <- c(phenopath1,phenopath2)
 #' tmp <- load_scdata(
 #'   ref = ref_list[[1]],
 #'   data_type = c("cellranger"),
@@ -188,6 +196,7 @@ load_scdata <- function(
     meta_info,
     nfeature_rna = 200,
     percent_mt = 40,
+    cc.genes = NULL,
     vars_to_regress = c("percent_mt", "phase"),
     id,
     verbose, ...) {
@@ -213,7 +222,7 @@ load_scdata <- function(
   if ("phase" %in% vars_to_regress) {
     if (verbose) message(paste0("predict cell cycle phase for sample ", id))
     data <- NormalizeData(data, assay = "RNA", verbose = verbose)
-    data("cc.genes")
+    #data("cc.genes")
     data <- CellCycleScoring(data, s.features = cc.genes$s.genes, g2m.features = cc.genes$g2m.genes, set.ident = FALSE, verbose = verbose)
   }
   if (verbose) message(paste0("perform sctransform for sample ", id))

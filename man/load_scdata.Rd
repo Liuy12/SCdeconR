@@ -10,6 +10,7 @@ load_scdata(
   meta_info,
   nfeature_rna = 200,
   percent_mt = 40,
+  cc.genes = NULL,
   vars_to_regress = c("percent_mt", "phase"),
   id,
   verbose,
@@ -26,6 +27,8 @@ load_scdata(
 \item{nfeature_rna}{minimum # of features with non-zero UMIs. Cells with # of features lower than nfeature_rna will be removed. Default to 200.}
 
 \item{percent_mt}{maximum percentage of mitochondria (MT) mapped UMIs. Cells with MT percentage higher than percent_mt will be removed. Default to 40.}
+
+\item{cc.genes}{cell-cycle genes curated by Seurat. Can be loaded via \code{data(cc.genes)}}
 
 \item{vars_to_regress}{a list of character values indicating the variables to regress for SCTransform normalization step. Default is to regress
 out MT percentage ("percent_mt") & cell cycle effects ("phase")}
@@ -47,10 +50,14 @@ For more details, refer to \code{\link{construct_ref}}
 }
 \examples{
 \dontrun{
-ref_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample1"),
-              paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample2"))
-phenodata_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/phenodata_sample1.txt"),
-                    paste0(system.file("extdata", package = "SCdeconR"), "/refdata/phenodata_sample2.txt"))
+samplepath1 <- paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample1")
+samplepath2 <- paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample2")
+ref_list <- c(samplepath1, samplepath2)
+phenopath1 <- paste0(system.file("extdata", package = "SCdeconR"),
+"/refdata/phenodata_sample1.txt")
+phenopath2 <- paste0(system.file("extdata", package = "SCdeconR"),
+"/refdata/phenodata_sample2.txt")
+phenodata_list <- c(phenopath1,phenopath2)
 tmp <- load_scdata(
   ref = ref_list[[1]],
   data_type = c("cellranger"),

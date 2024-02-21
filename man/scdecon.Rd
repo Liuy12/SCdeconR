@@ -23,6 +23,7 @@ scdecon(
   marker_strategy = c("all", "pos_fc", "top_50p_logFC", "top_50p_AveExpr"),
   to_remove = NULL,
   ffpe_artifacts = FALSE,
+  model = NULL,
   prop = NULL,
   cibersortpath = NULL,
   pythonpath = NULL,
@@ -89,6 +90,8 @@ effect of cell type removal from reference.}
 
 \item{ffpe_artifacts}{logical value indicating whether to add simulated ffpe artifacts in the bulk data. Only applicable to simulation experiments in
 evaluating the effect of FFPE artifacts.}
+
+\item{model}{pre-constructed ffpe model data. Can be loaded via \code{data(ffpemodel)}.}
 
 \item{prop}{a matrix or data.frame of simulated cell proportion values with rows representing cell types, columns representing samples. Only applicable to simulation
 experiments in evaluating the effect of cell type removal from reference.}

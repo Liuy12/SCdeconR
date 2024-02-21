@@ -19,7 +19,7 @@ Normalization <- function(data) {
 }
 
 markerfc <- function(fit2, log2_threshold = log2(1.5), output_name = "markers") {
-  topTable_RESULTS <- topTable(fit2, coef = 1:ncol(fit2$contrasts), number = Inf, adjust.method = "BH", p.value = 0.05, lfc = log2_threshold)
+  topTable_RESULTS <- limma::topTable(fit2, coef = 1:ncol(fit2$contrasts), number = Inf, adjust.method = "BH", p.value = 0.05, lfc = log2_threshold)
   AveExpr_pval <- topTable_RESULTS[, (ncol(topTable_RESULTS) - 3):ncol(topTable_RESULTS)]
   topTable_RESULTS <- topTable_RESULTS[, 1:(ncol(topTable_RESULTS) - 4)]
 
@@ -124,7 +124,7 @@ transformation <- function(matrix, option) {
   }
 
   if (option == "vst") {
-    matrix <- varianceStabilizingTransformation(as.matrix(matrix))
+    matrix <- DESeq2::varianceStabilizingTransformation(as.matrix(matrix))
   }
 
   return(matrix)
@@ -143,6 +143,7 @@ transformation <- function(matrix, option) {
 #' @param seed random seed used for simulating FFPE artifacts. Only applicable when ffpe_artifacts is set to TRUE.
 #' @param ffpe_artifacts logical value indicating whether to add simulated ffpe artifacts in the bulk data. Only applicable to simulation experiments in
 #' evaluating the effect of FFPE artifacts.
+#' @param model pre-constructed ffpe model data. Can be loaded via \code{data(ffpemodel)}
 #'
 #' @return a matrix-like object with the same dimension of input object after data normalization.
 #'
@@ -151,7 +152,7 @@ transformation <- function(matrix, option) {
 #' @export
 
 
-scaling <- function(matrix, option, gene_length = NULL, seed = 1234, ffpe_artifacts = FALSE) {
+scaling <- function(matrix, option, gene_length = NULL, seed = 1234, ffpe_artifacts = FALSE, model = NULL) {
 
   ##########    Remove rows & columns full of zeroes   ##########
   matrix <- matrix[rowSums(matrix) != 0, ]
@@ -177,13 +178,13 @@ scaling <- function(matrix, option, gene_length = NULL, seed = 1234, ffpe_artifa
   } else if (option == "median_ratios") { # requires integer values
     metadata <- data.frame(sampleid = colnames(matrix))
     CtrlGenes <- grep("ERCC-", rownames(matrix))
-    matrix <- DESeqDataSetFromMatrix(matrix, colData = metadata, design = ~1)
+    matrix <- DESeq2::DESeqDataSetFromMatrix(matrix, colData = metadata, design = ~1)
     if (length(CtrlGenes) > 1 & sum(rowSums(counts(matrix[CtrlGenes, ]) != 0) >= 0.5 * (ncol(matrix))) >= 2) {
-      dds <- estimateSizeFactors(matrix, type = "ratio", controlGenes = CtrlGenes)
+      dds <- DESeq2::estimateSizeFactors(matrix, type = "ratio", controlGenes = CtrlGenes)
     } else {
-      dds <- estimateSizeFactors(matrix, type = "ratio")
+      dds <- DESeq2::estimateSizeFactors(matrix, type = "ratio")
     }
-    matrix <- counts(dds, normalized = TRUE)
+    matrix <- DESeq2::counts(dds, normalized = TRUE)
   } else if (option == "TPM") {
     matrix <- matrix[rownames(matrix) %in% gene_length$GeneName, ]
     matrix <- matrix %>%
@@ -197,7 +198,7 @@ scaling <- function(matrix, option, gene_length = NULL, seed = 1234, ffpe_artifa
       ### convert to log2 scale
       matrix <- log2(matrix + 0.1)
       ### load GAM fitted model
-      model <- data("ffpemodel")
+      #model <- data("ffpemodel")
       diffmat <- matrix(
         sample(c(-1, 1), nrow(matrix) * ncol(matrix), replace = TRUE, prob = c(0.5, 0.5)) *
           rnorm(1:length(c(matrix)),
@@ -212,7 +213,7 @@ scaling <- function(matrix, option, gene_length = NULL, seed = 1234, ffpe_artifa
     ## scRNA-seq specific
   } else if (option == "SCTransform") {
     matrix <- as(matrix, "dgCMatrix")
-    matrix <- vst(matrix, return_corrected_umi = TRUE, show_progress = FALSE)$umi_corrected
+    matrix <- sctransform::vst(matrix, return_corrected_umi = TRUE, show_progress = FALSE)$umi_corrected
     matrix <- as(matrix, "matrix")
   } else if (option == "scran") {
     sf <- scran::computeSumFactors(as.matrix(matrix), clusters = NULL)
@@ -225,7 +226,7 @@ scaling <- function(matrix, option, gene_length = NULL, seed = 1234, ffpe_artifa
     matrix <- scater::normalizeCounts(as.matrix(matrix), size_factors = size_factors, return_log = FALSE)
   } else if (option == "Linnorm") { # It is not compatible with log transformed datasets.
     ## use Linnorm function from Linnorm package
-    matrix <- expm1(Linnorm(as.matrix(matrix))) # Main function contains log1p(datamatrix)
+    matrix <- expm1(Linnorm::Linnorm(as.matrix(matrix))) # Main function contains log1p(datamatrix)
   }
   return(matrix)
 }

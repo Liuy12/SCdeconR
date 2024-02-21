@@ -125,7 +125,7 @@ comparegsea_scatter <- function(
         geom_abline(slope = 1, intercept = 0)
     options(warn = 0)
     if (interactive) {
-        return(ggplotly(gp))
+        return(plotly::ggplotly(gp))
     } else {
         return(gp)
     }
@@ -176,7 +176,7 @@ gsea_sumplot <- function(
           axis.title.y = element_blank()) +
     scale_y_discrete(limits = rev(tmp$NAME))
   options(warn = 0)
-  if(interactive) return(ggplotly(gp)) else return(gp)
+  if(interactive) return(plotly::ggplotly(gp)) else return(gp)
 }
 
 

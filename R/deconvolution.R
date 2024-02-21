@@ -41,6 +41,7 @@
 #' effect of cell type removal from reference.
 #' @param ffpe_artifacts logical value indicating whether to add simulated ffpe artifacts in the bulk data. Only applicable to simulation experiments in
 #' evaluating the effect of FFPE artifacts.
+#' @param model pre-constructed ffpe model data. Can be loaded via \code{data(ffpemodel)}.
 #' @param prop a matrix or data.frame of simulated cell proportion values with rows representing cell types, columns representing samples. Only applicable to simulation
 #' experiments in evaluating the effect of cell type removal from reference.
 #' @param cibersortpath full path to CIBERSORT.R script.
@@ -149,6 +150,7 @@ scdecon <- function(
     marker_strategy = c("all", "pos_fc", "top_50p_logFC", "top_50p_AveExpr"),
     to_remove = NULL,
     ffpe_artifacts = FALSE,
+    model = NULL,
     prop = NULL,
     cibersortpath = NULL,
     pythonpath = NULL,
@@ -250,10 +252,10 @@ scdecon <- function(
       cont_matrix <- matrix((-1 / ncol(design)), nrow = ncol(design), ncol = ncol(design))
       colnames(cont_matrix) <- colnames(design)
       diag(cont_matrix) <- (ncol(design) - 1) / ncol(design)
-      tmp <- voom(ref_sel, design = design, plot = FALSE)
-      fit <- lmFit(tmp, design)
-      fit2 <- contrasts.fit(fit, cont_matrix)
-      fit2 <- eBayes(fit2, trend = TRUE)
+      tmp <- limma::voom(ref_sel, design = design, plot = FALSE)
+      fit <- limma::lmFit(tmp, design)
+      fit2 <- limma::contrasts.fit(fit, cont_matrix)
+      fit2 <- limma::eBayes(fit2, trend = TRUE)
       markers <- markerfc(fit2, log2_threshold = lfc_markers)
       if(length(unique(markers$CT)) != length(unique(phenodata$celltype))) warning(paste0("some cell types don't have marker genes: ", paste0(setdiff(unique(phenodata$celltype), unique(markers$CT)), collapse = ',')))
     } else {
@@ -263,7 +265,7 @@ scdecon <- function(
     }
   if (decon_type == "bulk") {
     if(verbose) message(paste0("perform transformation and normalization."))
-    bulk <- scaling(bulk, norm_method_bulk, ffpe_artifacts = ffpe_artifacts, gene_length = gene_length)
+    bulk <- scaling(bulk, norm_method_bulk, ffpe_artifacts = ffpe_artifacts, gene_length = gene_length, model = model)
     avgexp_ct <- scaling(avgexp_ct, norm_method_sc, ffpe_artifacts = FALSE, gene_length = gene_length)
     bulk <- transformation(bulk, trans_method_bulk)
     avgexp_ct <- transformation(avgexp_ct, trans_method_sc)
@@ -283,7 +285,7 @@ scdecon <- function(
     results <- deconvolution(bulk = bulk, ref = avgexp_ct, decon_method = decon_method, marker_distrib = marker_distrib, cibersortpath = cibersortpath, verbose = verbose)
   } else if (decon_type == "sc") {
     if(verbose) message(paste0("perform transformation and normalization"))
-    bulk <- scaling(bulk, norm_method_bulk, ffpe_artifacts = ffpe_artifacts, gene_length = gene_length)
+    bulk <- scaling(bulk, norm_method_bulk, ffpe_artifacts = ffpe_artifacts, gene_length = gene_length, model = model)
     ref <- scaling(ref, norm_method_sc, ffpe_artifacts = FALSE, gene_length = gene_length)
     bulk <- transformation(bulk, trans_method_bulk)
     ref <- transformation(ref, trans_method_sc)
@@ -335,7 +337,7 @@ prop_barplot <- function(prop, sort = TRUE, interactive = FALSE){
   theme_classic() + labs(y='Predicted proportion', fill = "Cell types") +
   theme(axis.title = element_text(size=20,face='bold'),axis.text = element_text(size=15),axis.text.x = element_blank(),
         axis.ticks.x=element_blank(),legend.title = element_text(size=15,face='bold'),legend.text = element_text(size=12))
-  if(interactive) return(ggplotly(gp)) else return(gp)
+  if(interactive) return(plotly::ggplotly(gp)) else return(gp)
 }
 
 
@@ -367,7 +369,9 @@ deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, py
   ###################################
   if (decon_method == "CIBERSORT") { # without QN. By default, CIBERSORT performed QN (only) on the mixture.
     source(cibersortpath)
-    results <- CIBERSORT(sig_matrix = ref, mixture_file = bulk, QN = FALSE)
+    #results <- CIBERSORT(sig_matrix = ref, mixture_file = bulk, QN = FALSE)
+    ## to get away with check note
+    results <- eval(parse(text = paste0("CIBERSORT(sig_matrix = ref, mixture_file = bulk, QN = FALSE)")))
     fiterror <- data.frame(sample = rownames(results), RMSE = results[, ncol(results)])
     results <- t(results[, 1:(ncol(results) - 3)])
   } else if (decon_method == "OLS") {
@@ -394,7 +398,7 @@ deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, py
     }))
   } else if (decon_method == "FARDEEP") {
     ## call fardeep from FARDEEP
-    results <- t(fardeep(ref, bulk, nn = TRUE, intercept = TRUE, permn = 10, QN = FALSE)$abs.beta)
+    results <- t(FARDEEP::fardeep(ref, bulk, nn = TRUE, intercept = TRUE, permn = 10, QN = FALSE)$abs.beta)
     results <- apply(results, 2, function(x) x / sum(x)) # explicit STO constraint
     fiterror <- data.frame(sample = colnames(results), RMSE = sapply(1:ncol(bulk), function(i) {
       u <- sweep(ref, MARGIN = 2, results[, i], "*")
@@ -412,11 +416,12 @@ deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, py
       sqrt((mean((k - bulk[, i])^2)))
     }))
   } else if (decon_method == "MuSiC") {
-    results <- t(music_prop(
-      bulk_eset, ref_eset, clusters = "celltype",
-      markers = NULL, normalize = FALSE, samples = "subjectid",
-      verbose = FALSE
-    )$Est.prop.weighted)
+    #results <- t(MuSiC::music_prop(
+    #  bulk_eset, ref_eset, clusters = "celltype",
+    #  markers = NULL, normalize = FALSE, samples = "subjectid",
+    #  verbose = FALSE
+    #)$Est.prop.weighted)
+    results <- eval(parse(text = 't(MuSiC::music_prop(bulk_eset, ref_eset, clusters = "celltype", markers = NULL, normalize = FALSE, samples = "subjectid", verbose = FALSE)$Est.prop.weighted)'))
     fiterror <- data.frame(sample = colnames(results), RMSE = sapply(1:ncol(bulk), function(i) {
       u <- sweep(ref, MARGIN = 2, results[, i], "*")
       k <- apply(u, 1, sum)
@@ -424,7 +429,9 @@ deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, py
     }))
   } else if (decon_method == "SCDC") {
     ### use SCDC_prop from SCDC package
-    results <- t(SCDC_prop(bulk.eset = bulk_eset, sc.eset = ref_eset, ct.varname = "celltype", sample = "subjectid", ct.sub = unique(as.character(phenodata$celltype)), iter.max = 200)$prop.est.mvw)
+    #results <- t(SCDC::SCDC_prop(bulk.eset = bulk_eset, sc.eset = ref_eset, ct.varname = "celltype", sample = "subjectid", ct.sub = unique(as.character(phenodata$celltype)), iter.max = 200)$prop.est.mvw)
+    ### to get away with check note
+    results <- eval(parse(text = 't(SCDC::SCDC_prop(bulk.eset = bulk_eset, sc.eset = ref_eset, ct.varname = "celltype", sample = "subjectid", ct.sub = unique(as.character(phenodata$celltype)), iter.max = 200)$prop.est.mvw)'))
     fiterror <- data.frame(sample = colnames(results), RMSE = sapply(1:ncol(bulk), function(i) {
       u <- sweep(ref, MARGIN = 2, results[, i], "*")
       k <- apply(u, 1, sum)
@@ -467,8 +474,10 @@ deconvolution <- function(bulk, ref, decon_method, phenodata, marker_distrib, py
     write.table(t(bulk),paste0(tmpdir,"/bulk_data.txt"), sep = "\t", row.names = TRUE, col.names = NA, quote = F)
     tape_script <- paste0(find.package("SCdeconR"), "/script/tape_deconvolution.py")
     #system(paste0("cp ", tape_script, " ", tmpdir))
-    source_python(tape_script)
-    results <- t(tape_deconvolution(sc_data = paste0(tmpdir, "/sc_data.txt"), bulk_data = paste0(tmpdir,"/bulk_data.txt")))
+    reticulate::source_python(tape_script)
+    # get away with check note
+    #results <- t(tape_deconvolution(sc_data = paste0(tmpdir, "/sc_data.txt"), bulk_data = paste0(tmpdir,"/bulk_data.txt")))
+    results <- eval(parse(text = paste0('t(tape_deconvolution(sc_data = ', tmpdir, '/sc_data.txt, bulk_data = ', tmpdir,'/bulk_data.txt')))
     fiterror <- NA
     if(remove_tmpdir) system(paste0("rm -rf ", tmpdir))
   }

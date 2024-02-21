@@ -199,7 +199,7 @@ comparedeg_scatter <- function(
         geom_abline(slope = 1, intercept = 0)
     options(warn = 0)
     if (interactive) {
-        return(ggplotly(gp))
+        return(plotly::ggplotly(gp))
     } else {
         return(gp)
     }
@@ -238,10 +238,10 @@ celltype_expression <- function(bulk, ref, phenodata, prop, ...) {
     celltypes <- factor(phenodata[, "celltype"])
     names(celltypes) <- phenodata$cellid
     ### use functions from spacexr package
-    reference <- Reference(ref, celltypes, require_int = FALSE, min_UMI = 0)
-    bulk_fake_spatial <- SpatialRNA(counts = bulk, use_fake_coords = TRUE, require_int = FALSE)
-    rctd_obj <- create.RCTD(bulk_fake_spatial, reference, fc_cutoff = 0, ...)
-    rctd_obj <- fitBulk(rctd_obj)
+    reference <- eval(parse(text = 'spacexr::Reference(ref, celltypes, require_int = FALSE, min_UMI = 0)'))
+    bulk_fake_spatial <- eval(parse(text = 'spacexr::SpatialRNA(counts = bulk, use_fake_coords = TRUE, require_int = FALSE)'))
+    rctd_obj <- eval(parse(text = 'spacexr::create.RCTD(bulk_fake_spatial, reference, fc_cutoff = 0, ...)'))
+    rctd_obj <- eval(parse(text = 'spacexr::fitBulk(rctd_obj)'))
     celltypes <- rctd_obj@cell_type_info$info[[2]]
     ct_renorm <- rctd_obj@cell_type_info$renorm[[1]]
     ct_mat <- lapply(1:length(celltypes), function(i) {
@@ -266,12 +266,12 @@ deseq2_fun <- function(counts, prop, sampleinfo, control, case, padj_method, ...
     }
     colnames(sampleinfo) <- make.names(colnames(sampleinfo))
     formula_de <- as.formula(paste0("~ ", paste0(colnames(sampleinfo), collapse = "+")))
-    dse <- DESeqDataSetFromMatrix(countData = counts, colData = sampleinfo, design = formula_de)
-    dse <- estimateSizeFactors(dse)
-    normdata <- counts(dse, normalized = TRUE)
-    dse <- estimateDispersions(dse, ...)
-    dse <- nbinomWaldTest(dse)
-    res <- results(dse, cooksCutoff = FALSE, contrast = c("group", case, control))
+    dse <- DESeq2::DESeqDataSetFromMatrix(countData = counts, colData = sampleinfo, design = formula_de)
+    dse <- DESeq2::estimateSizeFactors(dse)
+    normdata <- DESeq2::counts(dse, normalized = TRUE)
+    dse <- DESeq2::estimateDispersions(dse, ...)
+    dse <- DESeq2::nbinomWaldTest(dse)
+    res <- DESeq2::results(dse, cooksCutoff = FALSE, contrast = c("group", case, control))
     res <- as.data.frame(res)
     teststats <- res %>%
         select(-c(lfcSE, stat, padj)) %>%
@@ -329,24 +329,24 @@ limma_voom_fun <- function(counts, prop, sampleinfo, control, case, padj_method,
     }
     colnames(sampleinfo) <- make.names(colnames(sampleinfo))
     nf <- calcNormFactors(counts)
-    y <- voom(counts, plot = FALSE, lib.size = colSums(counts) * nf)
+    y <- limma::voom(counts, plot = FALSE, lib.size = colSums(counts) * nf)
     normdata <- as.matrix(2^(y$E))
     if (is.null(control) && is.null(case)) {
         formula_de <- as.formula(paste0("~ ", paste0(colnames(sampleinfo), collapse = "+")))
         design <- model.matrix(formula_de, data = sampleinfo)
         colnames(design)[2:length(unique(sampleinfo$group))] <- gsub("^group", "", colnames(design)[2:length(unique(sampleinfo$group))])
-        fit <- lmFit(y, design, ...)
-        fit <- eBayes(fit)
-        lmres <- topTable(fit, coef = 2:length(unique(sampleinfo$group)), n = nrow(counts), sort.by = "none")
+        fit <- limma::lmFit(y, design, ...)
+        fit <- limma::eBayes(fit)
+        lmres <- limma::topTable(fit, coef = 2:length(unique(sampleinfo$group)), n = nrow(counts), sort.by = "none")
         ncoef <- length(unique(sampleinfo$group)) - 1
     } else {
         formula_de <- as.formula(paste0("~ 0 + ", paste0(colnames(sampleinfo), collapse = "+")))
         design <- model.matrix(formula_de, data = sampleinfo)
         colnames(design)[1:length(unique(sampleinfo$group))] <- gsub("^group", "", colnames(design)[1:length(unique(sampleinfo$group))])
-        fit <- lmFit(y, design, ...)
-        fit2 <- eval(parse(text = paste0("contrasts.fit(fit, contrasts = makeContrasts(", case,"-",control,",levels=design))")))
-        fit2 <- eBayes(fit2)
-        lmres <- topTable(fit2, coef = 1, n = nrow(counts), sort.by = "none")
+        fit <- limma::lmFit(y, design, ...)
+        fit2 <- eval(parse(text = paste0("limma::contrasts.fit(fit, contrasts = limma::makeContrasts(", case,"-",control,",levels=design))")))
+        fit2 <- limma::eBayes(fit2)
+        lmres <- limma::topTable(fit2, coef = 1, n = nrow(counts), sort.by = "none")
         ncoef <- 1
     }
     teststats <- lmres %>%
@@ -359,7 +359,7 @@ limma_voom_fun <- function(counts, prop, sampleinfo, control, case, padj_method,
 }
 
 
-limma.pfun <- function(counts, prop, sampleinfo, control, case, p_adj_method, ...) {
+limma_fun <- function(counts, prop, sampleinfo, control, case, p_adj_method, ...) {
     message(paste0("Carrying out differential expression analysis using limma!", "\n"))
     normdata <- preprocessCore::normalize.quantiles(as.matrix(counts))
     rownames(normdata) <- rownames(counts)
@@ -370,18 +370,18 @@ limma.pfun <- function(counts, prop, sampleinfo, control, case, p_adj_method, ..
         formula_de <- as.formula(paste0("~ ", paste0(colnames(sampleinfo), collapse = "+")))
         design <- model.matrix(formula_de, data = sampleinfo)
         colnames(design)[2:length(unique(sampleinfo$group))] <- gsub("^group", "", colnames(design)[2:length(unique(sampleinfo$group))])
-        fit <- lmFit(normdata_log2, design, ...)
-        fit <- eBayes(fit)
-        lmres <- topTable(fit, coef = 2:length(unique(sampleinfo$group)), n = nrow(counts), sort.by = "none")
+        fit <- limma::lmFit(normdata_log2, design, ...)
+        fit <- limma::eBayes(fit)
+        lmres <- limma::topTable(fit, coef = 2:length(unique(sampleinfo$group)), n = nrow(counts), sort.by = "none")
         ncoef <- length(unique(sampleinfo$group)) - 1
     } else {
         formula_de <- as.formula(paste0("~ 0 + ", paste0(colnames(sampleinfo), collapse = "+")))
         design <- model.matrix(formula_de, data = sampleinfo)
         colnames(design)[1:length(unique(sampleinfo$group))] <- gsub("^group", "", colnames(design)[1:length(unique(sampleinfo$group))])
-        fit <- lmFit(normdata_log2, design, ...)
-        fit2 <- eval(parse(text = paste0("contrasts.fit(fit, contrasts = makeContrasts(", case,"-",control,",levels=design))")))
-        fit2 <- eBayes(fit2)
-        lmres <- topTable(fit2, coef = 1, n = nrow(counts), sort.by = "none")
+        fit <- limma::lmFit(normdata_log2, design, ...)
+        fit2 <- eval(parse(text = paste0("limma::contrasts.fit(fit, contrasts = limma::makeContrasts(", case,"-",control,",levels=design))")))
+        fit2 <- limma::eBayes(fit2)
+        lmres <- limma::topTable(fit2, coef = 1, n = nrow(counts), sort.by = "none")
         ncoef <- 1
     }
     teststats <- lmres %>%

@@ -24,19 +24,22 @@ Imports:
     grDevices,
     glmGamPoi
 Suggests: 
+    FARDEEP,
+    reticulate,
+    plotly,
     DESeq2,
     knitr,
     limma,
     nnls,
-    plotly,
     preprocessCore,
-    reticulate,
     rmarkdown,
     scater,
     scran,
     SingleCellExperiment,
     doFuture,
-    future
+    future,
+    sctransform,
+    Linnorm
 Depends: 
     dplyr,
     edgeR,

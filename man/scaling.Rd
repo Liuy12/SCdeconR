@@ -9,7 +9,8 @@ scaling(
   option,
   gene_length = NULL,
   seed = 1234,
-  ffpe_artifacts = FALSE
+  ffpe_artifacts = FALSE,
+  model = NULL
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ represents length of each gene. Only applicable when norm_method is selected as 
 
 \item{ffpe_artifacts}{logical value indicating whether to add simulated ffpe artifacts in the bulk data. Only applicable to simulation experiments in
 evaluating the effect of FFPE artifacts.}
+
+\item{model}{pre-constructed ffpe model data. Can be loaded via \code{data(ffpemodel)}}
 }
 \value{
 a matrix-like object with the same dimension of input object after data normalization.

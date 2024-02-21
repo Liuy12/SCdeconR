@@ -79,8 +79,11 @@ or "seurat". Harmony typically is more memory efficient and, recommended if you 
 ## random subset of two scRNA-seq datasets for breast tissue
 ref_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample1"),
               paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample2"))
-phenodata_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/phenodata_sample1.txt"),
-                    paste0(system.file("extdata", package = "SCdeconR"), "/refdata/phenodata_sample2.txt"))
+phenopath1 <- paste0(system.file("extdata", package = "SCdeconR"),
+"/refdata/phenodata_sample1.txt")
+phenopath2 <- paste0(system.file("extdata", package = "SCdeconR"),
+"/refdata/phenodata_sample2.txt")
+phenodata_list <- c(phenopath1,phenopath2)
 
 ## Register backend for parallel processing
 registerDoFuture()

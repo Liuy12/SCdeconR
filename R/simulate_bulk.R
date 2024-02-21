@@ -139,8 +139,8 @@ bulk_generator <- function(
     prop <- reshape2::dcast(prop, ct ~ mix,
       value.var = "expected",
       fun.aggregate = sum
-    ) %>% data.frame(., row.names = 1)
-
+    )
+    prop <- as.data.frame(prop, row.names = 1)
     prop <- prop[, mixedsort(colnames(prop))]
   }
   return(list(bulk = bulk, prop = prop))
@@ -168,11 +168,11 @@ bulk_generator <- function(
 #' phenodata <- data.frame(cellid = colnames(refdata),
 #'                         celltypes = refdata$celltype,
 #'                         subjectid = refdata$subjectid)
-#' bulk_sim <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"), 
-#'                            phenodata = phenodata, 
-#'                            num_mixtures = 20, 
+#' bulk_sim <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+#'                            phenodata = phenodata,
+#'                            num_mixtures = 20,
 #'                            num_mixtures_sprop = 1)
-#' 
+#'
 #' ## perform deconvolution based on "OLS" algorithm
 #' decon_res <- scdecon(bulk = bulk_sim[[1]],
 #'                      ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
@@ -182,8 +182,8 @@ bulk_generator <- function(
 #'                      norm_method = "none",
 #'                      trans_method = "none",
 #'                      marker_strategy = "all")
-#' 
-#' ## compute metrics 
+#'
+#' ## compute metrics
 #' metrics_res <- compute_metrics(decon_res[[1]], bulk_sim[[2]])
 #' }
 
