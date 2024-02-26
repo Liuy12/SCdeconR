@@ -143,7 +143,7 @@ transformation <- function(matrix, option) {
 #' @param seed random seed used for simulating FFPE artifacts. Only applicable when ffpe_artifacts is set to TRUE.
 #' @param ffpe_artifacts logical value indicating whether to add simulated ffpe artifacts in the bulk data. Only applicable to simulation experiments in
 #' evaluating the effect of FFPE artifacts.
-#' @param model pre-constructed ffpe model data. Can be loaded via \code{data(ffpemodel)}
+#' @param model pre-constructed ffpe model data. Can be downloaded from github: https://github.com/Liuy12/SCdeconR/blob/master/data/ffpemodel.rda
 #'
 #' @return a matrix-like object with the same dimension of input object after data normalization.
 #'

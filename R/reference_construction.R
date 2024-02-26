@@ -126,7 +126,7 @@ construct_ref <- function(
     merge_data <- harmony::RunHarmony(
       object = merge_data,
       assay.use = "SCT",
-      reduction = "pca",
+      reduction.use = "pca",
       dims.use = 1:30,
       group.by.vars = group_var,
       plot_convergence = FALSE,

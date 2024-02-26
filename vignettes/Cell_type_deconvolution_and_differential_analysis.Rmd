@@ -40,9 +40,7 @@ plan("multisession", workers = 4)
 
 # Construct integrated reference data
 
-You can also skip this section, and directly load the integrated reference data via `data(refdata)`
-
-```{r, eval=FALSE}
+```{r}
 # path to reference datasets
 ref_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample1"),
               paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample2"))
@@ -63,9 +61,6 @@ refdata <- construct_ref(ref_list = ref_list,
 refdata
 ```
 
-```{r, include=FALSE}
-data("refdata")
-```
 
 Here we set `nfeature_rna` to be 50 due to limited number of cells we included in the data. You might want to apply a higher cutoff for your own reference data. 
 
@@ -86,9 +81,6 @@ Ideally, you should split the integrated reference data into training and testin
 
 
 ```{r}
-# you can directly load refdata if you skipped the above section
-data("refdata")
-
 # create phenodata 
 phenodata <- data.frame(cellid = colnames(refdata),
                         celltypes = refdata$celltype,
@@ -184,7 +176,7 @@ str(decon_res[[2]])
 We can then generate a bar plot of predicted cell proportions across samples
 
 ```{r, fig.width=8, fig.height=6}
-prop_barplot(prop = decon_res[[1]], interactive = TRUE)
+prop_barplot(prop = decon_res[[1]], interactive = FALSE)
 ```
 
 # Perform differential expression analysis
@@ -230,7 +222,7 @@ comparedeg_scatter(results1 = deres[[2]],
                    fc_cutoff = 1.5,
                    pval_cutoff = 0.05,
                    pvalflag = TRUE,
-                   interactive = TRUE)
+                   interactive = FALSE)
 ```
 
 As you can see, many false positive differential genes were detected without adjusting for cell proportion differences. 
@@ -256,17 +248,17 @@ Use the reformatted `.gmt` file and `.rnk` file to run GSEA. You can download GS
 We included GSEA output using differential genes w/wo adjusting for cell-type differences. We can now compare the differences between those results. 
 
 ```{r, fig.height=6, fig.width=8}
-comparegsea_scatter(gseares_path1 = paste0(system.file("extdata", package = "SCdeconR"), "/gsea/results/age_adjust/"),
-                    gseares_path2 = paste0(system.file("extdata", package = "SCdeconR"), "/gsea/results/age_unadjust/"),
-                    result_names = c("age_adjust", "age_unadjust"), nes_cutoff = 1.5, pval_cutoff = 0.1, pvalflag = FALSE, interactive = TRUE)
+comparegsea_scatter(gseares_path1 = paste0(system.file("extdata", package = "SCdeconR"), "/gsea/results/ct_adjust/"),
+                    gseares_path2 = paste0(system.file("extdata", package = "SCdeconR"), "/gsea/results/ct_unadjust/"),
+                    result_names = c("ct_adjust", "ct_unadjust"), nes_cutoff = 1.5, pval_cutoff = 0.1, pvalflag = FALSE, interactive = FALSE)
 ```
 
 We can then generate summary plot of top enriched gene-sets.
 
 ```{r, fig.height=6, fig.width=8}
-gsea_sumplot(gseares_path = paste0(system.file("extdata", package = "SCdeconR"), "/gsea/results/age_adjust/"),
+gsea_sumplot(gseares_path = paste0(system.file("extdata", package = "SCdeconR"), "/gsea/results/ct_adjust/"),
              pos_sel = c("GLYCOSPHINGOLIPID_BIOSYNTHESIS", "FRUCTOSE_AND_MANNOSE_METABOLISM", "HIF-1_SIGNALING_PATHWAY"),
-             neg_sel = c("P53_SIGNALING_PATHWAY", "RENIN_SECRETION", "LYSOSOME"), pvalflag = FALSE, interactive = TRUE)
+             neg_sel = c("P53_SIGNALING_PATHWAY", "RENIN_SECRETION", "LYSOSOME"), pvalflag = FALSE, interactive = FALSE)
 ```
 
 Heatmap of two selected gene-sets for demonstration. 
@@ -285,7 +277,7 @@ gsea_heatmap(normdata = deres[[1]],
 Random-walk plot of selected gene-sets
 
 ```{r, fig.height=6, fig.width=6}
-gsea_rwplot(gseares_path = paste0(system.file("extdata", package = "SCdeconR"), "/gsea/results/age_adjust/"), 
+gsea_rwplot(gseares_path = paste0(system.file("extdata", package = "SCdeconR"), "/gsea/results/ct_adjust/"), 
             gsname = "HIF-1_SIGNALING_PATHWAY", 
             class_name = "KEGG")
 ```

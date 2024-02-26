@@ -41,7 +41,7 @@
 #' effect of cell type removal from reference.
 #' @param ffpe_artifacts logical value indicating whether to add simulated ffpe artifacts in the bulk data. Only applicable to simulation experiments in
 #' evaluating the effect of FFPE artifacts.
-#' @param model pre-constructed ffpe model data. Can be loaded via \code{data(ffpemodel)}.
+#' @param model pre-constructed ffpe model data. Can be downloaded from github: https://github.com/Liuy12/SCdeconR/blob/master/data/ffpemodel.rda.
 #' @param prop a matrix or data.frame of simulated cell proportion values with rows representing cell types, columns representing samples. Only applicable to simulation
 #' experiments in evaluating the effect of cell type removal from reference.
 #' @param cibersortpath full path to CIBERSORT.R script.
@@ -110,8 +110,23 @@
 #'
 #' @examples
 #' \dontrun{
-#' ## generate artificial bulk samples
-#' data(refdata)
+#' ref_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample1"),
+#'               paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample2"))
+#' phenopath1 <- paste0(system.file("extdata", package = "SCdeconR"),
+#' "/refdata/phenodata_sample1.txt")
+#' phenopath2 <- paste0(system.file("extdata", package = "SCdeconR"),
+#' "/refdata/phenodata_sample2.txt")
+#' phenodata_list <- c(phenopath1,phenopath2)
+#'
+#' # construct integrated reference using harmony algorithm
+#' refdata <- construct_ref(ref_list = ref_list,
+#'                       phenodata_list = phenodata_list,
+#'                       data_type = "cellranger",
+#'                       method = "harmony",
+#'                       group_var = "subjectid",
+#'                       nfeature_rna = 50,
+#'                       vars_to_regress = "percent_mt", verbose = FALSE)
+#'
 #' phenodata <- data.frame(cellid = colnames(refdata),
 #'                         celltypes = refdata$celltype,
 #'                         subjectid = refdata$subjectid)
