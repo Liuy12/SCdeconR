@@ -147,10 +147,10 @@ decon_res <- scdecon(bulk = bulk_sim[[1]],
                      phenodata = phenodata,
                      filter_ref = TRUE,
                      decon_method = "OLS",
-                     norm_method_sc = "none",
-                     norm_method_bulk = "none",
+                     norm_method_sc = "LogNormalize",
+                     norm_method_bulk = "TMM",
                      trans_method_sc = "none",
-                     trans_method_bulk = "none",
+                     trans_method_bulk = "log2",
                      marker_strategy = "all")
 
 ```
