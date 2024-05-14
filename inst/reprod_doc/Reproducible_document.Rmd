@@ -24,7 +24,7 @@ library(SCdeconR)
 
 # Download required files
 
-Data can be downloaded from zenodos [here](). The .rdata file contains several objects that will be used for simulation experiments, as well as evaluations on real data:
+Data can be downloaded from zenodos [here](https://zenodo.org/records/8335805). The .rdata file contains several objects that will be used for simulation experiments, as well as evaluations on real data:
 
 1. ref: integrated scRNA-seq reference data for breast tissue
 2. phenodata: phenotype information (celltype, etc) for scRNA-seq reference data
