@@ -155,7 +155,7 @@ bulk_generator <- function(
       value.var = "expected",
       fun.aggregate = sum
     )
-    prop <- as.data.frame(prop, row.names = 1)
+    prop <- data.frame(prop, row.names = 1)
     prop <- prop[, mixedsort(colnames(prop))]
   }
   return(list(bulk = bulk, prop = prop))
