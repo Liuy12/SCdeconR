@@ -15,7 +15,7 @@ output:
 # Load required libraries
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(message = FALSE, warning = FALSE,eval = FALSE)
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, fig.width=8, fig.height=6)
 ```
 
 ```{r}
@@ -24,7 +24,7 @@ library(SCdeconR)
 
 # Download required files
 
-Data can be downloaded from zenodos [here](https://zenodo.org/records/8335805). The .rdata file contains several objects that will be used for simulation experiments, as well as evaluations on real data:
+Data can be downloaded from zenodos [here](https://zenodo.org/records/11374072). The .rdata file contains several objects that will be used for simulation experiments, as well as evaluations on real data:
 
 1. ref: integrated scRNA-seq reference data for breast tissue
 2. phenodata: phenotype information (celltype, etc) for scRNA-seq reference data
@@ -32,13 +32,13 @@ Data can be downloaded from zenodos [here](https://zenodo.org/records/8335805). 
 4. markers: marker genes for each cell type
 5. gene_length: gene length information
 6. bulkdata_bbd: bulkdata from BBD cohort
-7. caseviwer_anno: caseviewer annotation for BBD cohort
+7. caseviewer_anno: caseviewer annotation for BBD cohort
 8. bulkdata_gtex: bulkdata from gtex cohort
 9. gtex_anno: pathology annotation for gtex breast cohort
 
 
 ```{r}
-load('inputdata.rds')
+load('inputdata.rdata')
 ```
 
 # Simulation studies
@@ -47,7 +47,7 @@ load('inputdata.rds')
 
 ```{r}
 set.seed(1234)
-## use 50% of the reference data to generate artifial bulk samples
+## use 50% of the reference data to generate artificial bulk samples
 ## the remaining 50% is provided during inference
 idx <- sample(1:ncol(ref), ncol(ref)/2, replace = FALSE)
 bulk_sim <- bulk_generator(ref = ref[,idx], 
@@ -57,121 +57,150 @@ bulk_sim <- bulk_generator(ref = ref[,idx],
                             replace = FALSE)
 
 ## perform deconvolution using different algorithms
-decon_res <- scdecon(bulk = bulk_sim, 
+## example provided for OLS algorithm
+decon_res_baseline <- scdecon(bulk = bulk_sim$bulk, 
                       ref = ref[,-idx], 
                       phenodata = phenodata[-idx,], 
                       filter_ref = TRUE, 
                       genes_to_remove = genes_to_remove,
                       marker_genes = markers,
-                     cibersortpath = "path/to/cibersort.R", # specify path to cibersor.R
-                      decon_method = "decon_method", # specify deconvolution method 
-                      norm_method_sc = "none", # specify norm method for reference data
-                      norm_method_bulk = "none", # specify norm method for bulk data
+                      decon_method = "OLS", # specify deconvolution method 
+                      norm_method_sc = "LogNormalize", # specify norm method for reference data
+                      norm_method_bulk = "TPM", # specify norm method for bulk data
                       trans_method_sc = "none", # specify trans method for reference data
                       trans_method_bulk = "none", # specify trans method for bulk data
-                      gene_length = gene_length,
-                     pythonpath = "path/to/python", # specify path to python
-                     tmpdir = "outputdir", # specify tmp directory for scaden or scTAPE
-                     remove_tmpdir = FALSE,
+                      marker_strategy = "all",
+                      gene_length = gene_length[gene_length$GeneName %in% rownames(bulk_sim$bulk),],
                       verbose = TRUE)
+
+## generate bar plot of predicted proportions
+prop_barplot(prop = decon_res_baseline[[1]], interactive = FALSE)
+
+## Compute RMSE, bias & variance metrics 
+metrics_baseline <- compute_metrics(prop_pred = decon_res_baseline[[1]], prop_sim = bulk_sim$prop)
 ```
 
 ## Cell type removal 
 
 ```{r}
 ## perform deconvolution using different algorithms
+## example provided for OLS algorithm
 ## need to specify to_remove parameter
-decon_res <- scdecon(bulk = bulk_sim, 
+decon_res_ct_rm <- scdecon(bulk = bulk_sim$bulk, 
                       ref = ref[,-idx], 
                       phenodata = phenodata[-idx,], 
                       filter_ref = TRUE, 
                       genes_to_remove = genes_to_remove,
                       marker_genes = markers,
-                     cibersortpath = "path/to/cibersort.R", # specify path to cibersor.R
-                      decon_method = "decon_method", # specify deconvolution method 
-                      norm_method_sc = "none", # specify norm method for reference data
-                      norm_method_bulk = "none", # specify norm method for bulk data
+                      decon_method = "OLS", # specify deconvolution method 
+                      norm_method_sc = "LogNormalize", # specify norm method for reference data
+                      norm_method_bulk = "TPM", # specify norm method for bulk data
                       trans_method_sc = "none", # specify trans method for reference data
                       trans_method_bulk = "none", # specify trans method for bulk data
-                      gene_length = gene_length,
-                     pythonpath = "path/to/python", # specify path to python
-                     tmpdir = "outputdir", # specify tmp directory for scaden or scTAPE
-                     to_remove = "celltype_to_remove", # specify cell type to remove
-                     remove_tmpdir = FALSE,
+                      marker_strategy = "all",
+                      gene_length = gene_length[gene_length$GeneName %in% rownames(bulk_sim$bulk),],
+                      to_remove = "Adipocyte", # specify cell type to remove
+                      prop = bulk_sim$prop, # specify prop matrix
                       verbose = TRUE)
+
+## generate bar plot of predicted proportions
+prop_barplot(prop = decon_res_ct_rm[[1]], interactive = FALSE)
+
+## Compute RMSE, bias & variance metrics 
+metrics_ct_rm <- compute_metrics(prop_pred = decon_res_ct_rm[[1]], prop_sim = decon_res_ct_rm[[3]])
 ```
 
 ## FFPE
 
 ```{r}
 ## perform deconvolution using different algorithms
+## example provided for OLS algorithm
 ## need to enable ffpe_artifacts parameter
-decon_res <- scdecon(bulk = bulk_sim, 
+## download model object from: https://github.com/Liuy12/SCdeconR/blob/master/data/ffpemodel.rda
+data("ffpemodel")
+decon_res_ffpe <- scdecon(bulk = bulk_sim$bulk, 
                       ref = ref[,-idx], 
                       phenodata = phenodata[-idx,], 
                       filter_ref = TRUE, 
                       genes_to_remove = genes_to_remove,
                       marker_genes = markers,
-                     cibersortpath = "path/to/cibersort.R", # specify path to cibersor.R
-                      decon_method = "decon_method", # specify deconvolution method 
-                      norm_method_sc = "none", # specify norm method for reference data
-                      norm_method_bulk = "none", # specify norm method for bulk data
+                      decon_method = "OLS", # specify deconvolution method 
+                      norm_method_sc = "LogNormalize", # specify norm method for reference data
+                      norm_method_bulk = "TPM", # specify norm method for bulk data
                       trans_method_sc = "none", # specify trans method for reference data
                       trans_method_bulk = "none", # specify trans method for bulk data
-                      gene_length = gene_length,
-                     pythonpath = "path/to/python", # specify path to python
-                     tmpdir = "outputdir", # specify tmp directory for scaden or scTAPE
+                      marker_strategy = "all",
+                      gene_length = gene_length[gene_length$GeneName %in% rownames(bulk_sim$bulk),], 
                      ffpe_artifacts = TRUE, # enable FFPE artifact
-                     remove_tmpdir = FALSE,
+                     model = ffpemodel,
                       verbose = TRUE)
+
+## generate bar plot of predicted proportions
+prop_barplot(prop = decon_res_ffpe[[1]], interactive = FALSE)
+
+## Compute RMSE, bias & variance metrics 
+metrics_ffpe <- compute_metrics(prop_pred = decon_res_ffpe[[1]], prop_sim = bulk_sim$prop)
 ```
 
 # Benchmark using BBD FFPE samples
 
 ```{r}
 ## perform deconvolution using different algorithms
+## example provided for OLS algorithm
 ## using all data from ref
-decon_res <- scdecon(bulk = bulk_data_bbd, 
+decon_res_bbd <- scdecon(bulk = bulkdata_bbd, 
                       ref = ref, 
                       phenodata = phenodata, 
                       filter_ref = TRUE, 
                       genes_to_remove = genes_to_remove,
                       marker_genes = markers,
                      min_pct_ct = 0.2, # specify minimum proportion of expressing cells
-                     cibersortpath = "path/to/cibersort.R", # specify path to cibersor.R
-                      decon_method = "decon_method", # specify deconvolution method 
+                      decon_method = "OLS", # specify deconvolution method 
                       norm_method_sc = "LogNormalize", # specify norm method for reference data
                       norm_method_bulk = "TPM", # specify norm method for bulk data
                       trans_method_sc = "none", # specify trans method for reference data
                       trans_method_bulk = "none", # specify trans method for bulk data
-                      gene_length = gene_length,
-                     pythonpath = "path/to/python", # specify path to python
-                     tmpdir = "outputdir", # specify tmp directory for scaden or scTAPE
-                     remove_tmpdir = FALSE,
+                     marker_strategy = "all",
+                      gene_length = gene_length[gene_length$GeneName %in% rownames(bulkdata_bbd),],
                       verbose = TRUE)
+
+## generate bar plot of predicted proportions
+prop_barplot(prop = decon_res_bbd[[1]], interactive = FALSE)
+
+## Compute RMSE, bias & variance metrics 
+## extract predicted proportions for selected cell types
+prop_pred <- decon_res_bbd[[1]][c("Epithelial_cells", "Fibroblast", "Endothelial_cells", "Pericytes", "Adipocyte"),]
+prop_pred <- rbind(prop_pred, apply(prop_pred[2:4,], 2, sum))
+prop_pred <- prop_pred[-c(2:4),]
+rownames(prop_pred)[3] <- "Stroma"
+prop_pred <- sweep(prop_pred, 2, apply(prop_pred, 2, sum), "/")
+metrics_ffpe <- compute_metrics(prop_pred = prop_pred, prop_sim = caseviewer_anno)
+## as there is no technical replicates in BBD cohort, the first element of metrics_ffpe probably 
+## don't make much sense. The second element represents samples-level RMSEs.
 ```
 
 # Evaluation using GTex breast tissue cohort
 
 ```{r}
-## perform deconvolution using scaden
+## example provided for OLS algorithm
+## Original paper used scaden for prediction
 ## using all data from ref
-decon_res <- scdecon(bulk = bulk_data_gtex, 
+decon_res_gtex <- scdecon(bulk = bulkdata_gtex, 
                       ref = ref, 
                       phenodata = phenodata, 
                       filter_ref = TRUE, 
                       genes_to_remove = genes_to_remove,
                       min_pct_ct = 0.2, # specify minimum proportion of expressing cells
                       marker_genes = markers,
-                     cibersortpath = "path/to/cibersort.R", # specify path to cibersor.R
-                      decon_method = "scaden", # specify deconvolution method 
+                      decon_method = "OLS", # specify deconvolution method 
                       norm_method_sc = "LogNormalize", # specify norm method for reference data
                       norm_method_bulk = "TPM", # specify norm method for bulk data
                       trans_method_sc = "none", # specify trans method for reference data
                       trans_method_bulk = "none", # specify trans method for bulk data
-                      gene_length = gene_length,
-                     pythonpath = "path/to/python", # specify path to python
-                     tmpdir = "outputdir", # specify tmp directory for scaden or scTAPE
-                     remove_tmpdir = FALSE,
+                      marker_strategy = "all",
+                      gene_length = gene_length[gene_length$GeneName %in% rownames(bulkdata_gtex),],
                       verbose = TRUE)
+
+## generate bar plot of predicted proportions
+prop_barplot(prop = decon_res_gtex[[1]], interactive = FALSE)
 ```
