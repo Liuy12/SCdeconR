@@ -1,0 +1,292 @@
+---
+title: "Cell type deconvolution and differential analysis"
+output: 
+  rmarkdown::html_vignette
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+vignette: >
+  %\VignetteIndexEntry{Cell type deconvolution and differential analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  tidy = TRUE,
+  tidy.opts = list(width.cutoff = 95),
+  message = FALSE,
+  warning = FALSE, 
+  error = FALSE,
+  fig.align = "center"
+)
+```
+
+
+For this tutorial, we will firstly construct an integrated reference using single-cell RNA-seq (scRNA-seq) and single-nuclei RNA-seq (snRNA-seq) data from normal breast tissue samples. 
+
+Then, we will simulate artificial bulk RNA-seq samples using the constructed reference data. Predefined cell-type proportions will be used to introduce heterogeneity between groups for the simulated bulk samples. 
+
+We then use `OLS` method to deconvolute the bulk samples and predict cell-type proportions for each sample. Differential expression and pathway enrichment analysis will then be performed to identify perturbed genes and pathways. We will also be examining the effect of correcting for cell-type proportion differences on those downstream analysis.  
+
+# Load required libraries 
+
+```{r}
+library(SCdeconR)
+library(plotly)
+# register backend for parallel processing
+library(doFuture)
+registerDoFuture()
+plan("multisession", workers = 4)
+```
+
+# Construct integrated reference data
+
+You can also skip this section, and directly load the integrated reference data via `data(refdata)`
+
+```{r, eval=FALSE}
+# path to reference datasets
+ref_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample1"),
+              paste0(system.file("extdata", package = "SCdeconR"), "/refdata/sample2"))
+
+# path to phenodata files
+phenodata_list <- c(paste0(system.file("extdata", package = "SCdeconR"), "/refdata/phenodata_sample1.txt"),
+                    paste0(system.file("extdata", package = "SCdeconR"), "/refdata/phenodata_sample2.txt"))
+
+# construct integrated reference using harmony algorithm
+refdata <- construct_ref(ref_list = ref_list,
+              phenodata_list = phenodata_list,
+              data_type = "cellranger",
+              method = "harmony",
+              group_var = "subjectid",
+              nfeature_rna = 50,
+              vars_to_regress = "percent_mt", verbose = FALSE
+              )
+refdata
+```
+
+```{r, include=FALSE}
+data("refdata")
+```
+
+Here we set `nfeature_rna` to be 50 due to limited number of cells we included in the data. You might want to apply a higher cutoff for your own reference data. 
+
+<details>
+  <summary>**what does refdata looks like**</summary>
+
+```{r}
+# refdata is a seurat object with those metadata information.
+# use ?refdata for further documentation
+str(refdata@meta.data)
+```
+
+</details>
+
+# Simulate artificial bulk RNA-seq samples based on integrated reference
+
+Ideally, you should split the integrated reference data into training and testing, and use the training data to generate artificial bulk samples. The testing data is used in deconvolution step. However, for the sake of this tutorial, due to the small # of cells we included in the `refdata`, we will not split the data into training and testing. 
+
+
+```{r}
+# you can directly load refdata if you skipped the above section
+data("refdata")
+
+# create phenodata 
+phenodata <- data.frame(cellid = colnames(refdata),
+                        celltypes = refdata$celltype,
+                        subjectid = refdata$subjectid)
+
+# Here is the number of cells per cell-type in refdata
+table(refdata$celltype)
+```
+
+Next we generate two sets of bulk data that have different cell-type proportions. 
+
+```{r}
+# equal proportions across cell-types
+prop1 <- data.frame(celltypes = unique(refdata$celltype),
+                    proportion = rep(0.125, 8))
+
+# generate 20 artificial bulk samples with the above cell-type proportions
+bulk_sim1 <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"), 
+                            phenodata = phenodata, 
+                            num_mixtures = 20, 
+                            prop = prop1, 
+                            replace = TRUE)
+
+# high proportion of epithelial cells 
+prop2 <- data.frame(celltypes = unique(refdata$celltype),
+                    proportion = c(0.8, 0.1, 0.1, rep(0, 5)))
+# generate 20 artificial bulk samples with the above cell-type proportions
+bulk_sim2 <- bulk_generator(ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+                            phenodata = phenodata, 
+                            num_mixtures = 20, 
+                            prop = prop2, 
+                            replace = TRUE)
+
+# combine the two datasets
+bulk_sim <- list(cbind(bulk_sim1[[1]], bulk_sim2[[1]]),
+                 cbind(bulk_sim1[[2]], bulk_sim2[[2]]))
+```
+
+<details>
+  <summary>**what does simulated bulk data looks like**</summary>
+
+```{r}
+# bulk_generator returns a list of two elements.
+# the first element is simulated bulk RNA-seq data, with rows representing genes, columns representing samples.
+# show first five samples
+str(bulk_sim[[1]][,1:5])
+```
+
+```{r}
+# the second element is cell type proportions used to simulate the bulk RNA-seq data, with rows representing cell types, columns representing samples.
+# show first five samples
+str(bulk_sim[[2]][,1:5])
+```
+
+</details>
+
+# Perform cell-type deconvolution using OLS algorithm
+
+```{r}
+# as mentioned ealier, we use the same reference data for deconvolution.
+# in practice, we recommend to split your reference data into training and testing, and use testing data for decovolution
+decon_res <- scdecon(bulk = bulk_sim[[1]],
+                     ref = GetAssayData(refdata, slot = "data", assay = "SCT"),
+                     phenodata = phenodata,
+                     filter_ref = TRUE,
+                     decon_method = "OLS",
+                     norm_method_sc = "none",
+                     norm_method_bulk = "none",
+                     trans_method_sc = "none",
+                     trans_method_bulk = "none",
+                     marker_strategy = "all")
+
+```
+
+
+<details>
+  <summary>**what does deconvolution result looks like**</summary>
+
+```{r}
+# scdecon returns a list of two elements
+# the first element is a data.frame of predicted cell-type proportions, with rows representing cell types, columns representing samples.
+str(decon_res[[1]])
+```
+
+```{r}
+# the second element is a data.frame of fitting errors of the algorithm; first column represents sample names, second column represents RMSEs.
+str(decon_res[[2]])
+```
+
+</details>
+
+
+We can then generate a bar plot of predicted cell proportions across samples
+
+```{r, fig.width=8, fig.height=6}
+prop_barplot(prop = decon_res[[1]], interactive = TRUE)
+```
+
+# Perform differential expression analysis
+
+```{r}
+# prepare sampleinfo, group1 and group2 were the two bulk sets we simulated eariler.
+sampleinfo <- data.frame(condition = rep(c("group1", "group2"), each =20))
+row.names(sampleinfo) <- paste0("sample", 1:nrow(sampleinfo))
+
+# prepare bulk samples
+bulk <- bulk_sim[[1]]
+# force data to be integers for DE purposes
+for(i in 1:ncol(bulk)) storage.mode(bulk[,i]) <- "integer"
+colnames(bulk) <- rownames(sampleinfo)
+
+# prepare predicted cell-type proportions
+prop = decon_res[[1]]
+colnames(prop) <- colnames(bulk)
+
+# perform DEA adjusting cell-type proportion differences
+deres <- run_de(bulk = bulk,
+                prop = prop,
+                sampleinfo = sampleinfo,
+                control = "group1",
+                case = "group2",
+                de_method = "edgeR")
+
+# perform DEA without adjusting cell-type proportion differences
+deres_notadjust <- run_de(bulk = bulk,
+                prop = NULL,
+                sampleinfo = sampleinfo,
+                control = "group1",
+                case = "group2",
+                de_method = "edgeR")
+```
+
+Next, we can compare the effect of adjusting for cell-type proportion differences
+
+```{r, fig.width=8, fig.height=6}
+comparedeg_scatter(results1 = deres[[2]],
+                   results2 = deres_notadjust[[2]],
+                   result_names = c("adjust for cell proportion", "not adjust for cell proportion"),
+                   fc_cutoff = 1.5,
+                   pval_cutoff = 0.05,
+                   pvalflag = TRUE,
+                   interactive = TRUE)
+```
+
+As you can see, many false positive differential genes were detected without adjusting for cell proportion differences. 
+
+# Gene-set enrichment analysis
+
+We also provide several visualization options for pathway enrichment results generated using [GSEA](https://www.gsea-msigdb.org/gsea/index.jsp) software. Note that those functions are not compatible with the [R implementation](https://github.com/GSEA-MSigDB/GSEA_R) of GSEA. Also remember to run `reformt_gmt()` to reformat the gene-set names before using GSEA. 
+
+```{r, eval=FALSE}
+reformat_gmt(gmtfile = "/path/to/gmt/file/", outputfile = "/path/to/reformatted/gmt/file/", replace = TRUE)
+## here is one example of reformatted gmt file for kegg pathway
+gmt <- read_gmt(gmtfile = paste0(system.file("extdata", package = "SCdeconR"), "/gsea/gmtfile/kegg.gmt"))
+```
+
+Prepare `.rnk` file.
+
+```{r, eval=FALSE}
+prepare_rnk(teststats = deres[[2]], outputfile = "/path/to/rnk/file/")
+```
+
+Use the reformatted `.gmt` file and `.rnk` file to run GSEA. You can download GSEA [here](https://www.gsea-msigdb.org/gsea/downloads.jsp). Do not use the R version implementation (our visualization functions are not compatible with GSEA R implementation). 
+
+We included GSEA output using differential genes w/wo adjusting for cell-type differences. We can now compare the differences between those results. 
+
+```{r, fig.height=6, fig.width=8}
+comparegsea_scatter(gseares_path1 = paste0(system.file("extdata", package = "SCdeconR"), "/gsea/results/age_adjust/"),
+                    gseares_path2 = paste0(system.file("extdata", package = "SCdeconR"), "/gsea/results/age_unadjust/"),
+                    result_names = c("age_adjust", "age_unadjust"), nes_cutoff = 1.5, pval_cutoff = 0.1, pvalflag = FALSE, interactive = TRUE)
+```
+
+We can then generate summary plot of top enriched gene-sets.
+
+```{r, fig.height=6, fig.width=8}
+gsea_sumplot(gseares_path = paste0(system.file("extdata", package = "SCdeconR"), "/gsea/results/age_adjust/"),
+             pos_sel = c("GLYCOSPHINGOLIPID_BIOSYNTHESIS", "FRUCTOSE_AND_MANNOSE_METABOLISM", "HIF-1_SIGNALING_PATHWAY"),
+             neg_sel = c("P53_SIGNALING_PATHWAY", "RENIN_SECRETION", "LYSOSOME"), pvalflag = FALSE, interactive = TRUE)
+```
+
+Heatmap of two selected gene-sets for demonstration. 
+
+```{r, fig.height=6, fig.width=8}
+gsea_heatmap(normdata = deres[[1]],
+             teststats = deres[[2]], 
+             gmtfile = paste0(system.file("extdata", package = "SCdeconR"), "/gsea/gmtfile/kegg.gmt"), 
+             numgenes = 200, 
+             gsname_up = "HIF-1_SIGNALING_PATHWAY", 
+             gsname_down = "P53_SIGNALING_PATHWAY", 
+             anncol = sampleinfo, 
+             color = colorRampPalette(c("blue", "white", "red"))(100))
+```
+
+Random-walk plot of selected gene-sets
+
+```{r, fig.height=6, fig.width=6}
+gsea_rwplot(gseares_path = paste0(system.file("extdata", package = "SCdeconR"), "/gsea/results/age_adjust/"), 
+            gsname = "HIF-1_SIGNALING_PATHWAY", 
+            class_name = "KEGG")
+```
+

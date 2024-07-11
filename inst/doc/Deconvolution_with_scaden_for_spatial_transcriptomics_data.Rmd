@@ -1,0 +1,117 @@
+---
+title: "Deconvolution with scaden for spatial transcriptomics data"
+output: rmarkdown::html_vignette
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+vignette: >
+  %\VignetteIndexEntry{Deconvolution with scaden for spatial transcriptomics data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  tidy = TRUE,
+  tidy.opts = list(width.cutoff = 95),
+  message = FALSE,
+  warning = FALSE, 
+  error = FALSE,
+  fig.align = "center"
+)
+```
+
+
+Recent studies ([Zubair el.al.](https://academic.oup.com/nar/article/50/14/e80/6583238), [Wang el.al.](https://www.biorxiv.org/content/10.1101/2022.12.15.520612v1)) have indicated the potential to apply bulk-deconvolution methods to new technologies such as spatial transcriptomics when the resolution is not at single-cell level. 
+
+For this tutorial, we will use `scaden` to deconvolute a dataset of sagital mouse brain slices generated using the Visium v1 chemistry, and generate cell-type specific gene expression. The data is provided by `Seurat` package and can be downloaded via `InstallData()`. If you haven't installed `scaden`, please follow instruction [here](https://liuy12.github.io/SCdeconR/).
+
+# Load required libraries and data
+
+```{r eval=FALSE}
+## download data if it's not already installed
+SeuratData::InstallData("stxBrain")
+```
+
+```{r}
+library(SCdeconR)
+library(plotly)
+## load brain spatial data from sample anterior1
+brain <- SeuratData::LoadData("stxBrain", type = "anterior1")
+## proprocess data
+brain <- SCTransform(brain, assay = "Spatial", verbose = FALSE)
+## see ?refdata_brain for details
+data("refdata_brain")
+```
+
+# Perform spot deconvolution using scaden
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+phenodata <- refdata_brain@meta.data
+## provide directory that contains python binary to pythonpath, e.g. /usr/bin/
+decon_res <- scdecon(bulk = GetAssayData(brain, slot = "data", assay = "SCT"),
+                     ref = GetAssayData(refdata_brain, slot = "data", assay = "SCT"),
+                     phenodata = phenodata,
+                     filter_ref = TRUE,
+                     decon_method = "scaden",
+                     norm_method = "none",
+                     trans_method = "none",
+                     marker_strategy = "all",
+                     pythonpath ="/research/bsi/projects/PI/tertiary/Wang_Chen_m092469/s216340.Ovarian_cell_line_RNAseq/processing/personal_dir/python_venv/anaconda/envs/scaden_env/bin/python")
+```
+
+
+```{r eval=FALSE}
+## provide directory that contains python binary to pythonpath, e.g. /usr/bin/
+decon_res <- scdecon(bulk = GetAssayData(brain, slot = "data", assay = "SCT"),
+                     ref = GetAssayData(refdata_brain, slot = "data", assay = "SCT"),
+                     phenodata = refdata_brain@meta.data,
+                     filter_ref = TRUE,
+                     decon_method = "scaden",
+                     norm_method = "none",
+                     trans_method = "none",
+                     marker_strategy = "all",
+                     pythonpath ="/path/to/python/bin/dir/", 
+                     tmpdir = "/path/to/tmp/dir/")
+```
+
+Visualize distribution of cell-type proprotions
+
+```{r fig.width=8, fig.height=6}
+prop_barplot(prop = decon_res[[1]], interactive = TRUE)
+```
+
+Add predicted cell-type proportions as new `assaydata` to `Seurat` object.
+
+```{r}
+prop_assay <- CreateAssayObject(data = decon_res[[1]])
+brain[["PROP"]] <- prop_assay
+```
+
+Visualize predicted cell proportions for L5 IT, L6 IT and macrophage in spatial
+
+```{r fig.width=12, fig.height=6}
+DefaultAssay(brain) <- "PROP"
+SpatialFeaturePlot(brain, features = c("L5.IT", "L6.IT"), pt.size.factor = 1.6, ncol = 2)
+```
+
+# Compute cell-type specific gene expression
+```{r}
+ct_exprs_list <- celltype_expression(bulk = GetAssayData(brain, slot = "data", assay = "SCT"),
+                                     ref = GetAssayData(refdata_brain, slot = "data", assay = "SCT"),
+                                     phenodata = refdata_brain@meta.data,
+                                     prop = decon_res[[1]],
+                                     UMI_min = 0,
+                                     CELL_MIN_INSTANCE = 1)
+
+## create assaydata and add to Seurat object
+for(i in 1:length(ct_exprs_list)){
+  ct_assay <- CreateAssayObject(data = as.matrix(ct_exprs_list[[i]]))
+  ct_name <- names(ct_exprs_list)[i]
+  brain[[ct_name]] <- ct_assay
+}
+```
+
+We can then examine expression of genes using cell-type specific gene expression assays
+
+```{r, fig.width=12, fig.height=6}
+DefaultAssay(brain) <- "L5.IT"
+SpatialFeaturePlot(brain, features = c("Rorb", "Fezf2"), pt.size.factor = 1.6, ncol = 2)
+```
