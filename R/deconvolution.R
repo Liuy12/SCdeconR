@@ -194,7 +194,6 @@ scdecon <- function(
       pythonpath <- reticulate::py_config()$python
     } else if(is.null(pythonpath) && (!reticulate::py_available())) stop("pythonpath not specified, and python cannot be found via py_available()")
     reticulate::use_python(pythonpath)
-    if()
     if(decon_method == "scaden" && (!reticulate::py_module_available("scaden"))) stop("scaden not installed. You can install scaden via pip or conda. See installation page for details")
     if(decon_method == "scTAPE" && (!reticulate::py_module_available("TAPE"))) stop("scTAPE not installed. You can install scTAPE via pip or conda. See installation page for details")
   }
